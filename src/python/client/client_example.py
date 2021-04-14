@@ -30,7 +30,7 @@ class SubscriptionHandler (SubHandler):
         """
         global STOP_FLAG
         _logger.info('datachange_notification node: %r value: %s', node, val)
-        if val > 100:
+        if val > 1:
             STOP_FLAG = True
 
 
@@ -57,10 +57,11 @@ async def main():
         await subscription.subscribe_data_change(nodes=motor_rpm, queuesize=1)
 
         global STOP_FLAG # flag to stop motor
-        # write to input value of motor, then
-        # start motor, finally
-        # stop motor if stop flag is set by sub_handler
-        await motor_inp.write_value(20)
+        # write to input value of motor
+        # then, start motor
+        # finally, stop motor if stop flag is set by sub_handler
+        # and delete subscription and exit context manager
+        await motor_inp.write_value(1)
         _logger.info('wrote 20 to input value')
         await motor_obj.call_method(f'{idx}:start_motor')
         _logger.info('motor started')
@@ -70,6 +71,9 @@ async def main():
                 await motor_obj.call_method(f"{idx}:stop_motor")
                 _logger.info('motor stopped')
                 STOP_FLAG = False
+                subscription.delete()
+                await asyncio.sleep(1)
+                break
 
 
 if __name__ == "__main__":
