@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-'''
+"""
 Example of OPC UA Server populated with custom Object DC Motor
 
 Object: DC Motor
     Variables: inp_value, rounds_per_min
     Methods: start_motor(), stop_motor()
-'''
+"""
 import sys
 sys.path.insert(0, '..') # import parent folder
-import asyncio
+import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
 
 
