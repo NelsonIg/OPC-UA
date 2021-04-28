@@ -19,7 +19,7 @@ class SubscriptionHandler (SubHandler):
     """
 
     def datachange_notification(self, node: Node, val, data):
-        _logger.info(f'datachange_notification node: {node} value: {val}')
+        print(f'datachange_notification node: {node} value: {val}')
 
 # add start, stop methods for motor
 global MOTOR_STARTED, dc_motor_inp, dc_motor_rpm
