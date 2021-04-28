@@ -8,10 +8,13 @@ Object: DC Motor
 """
 import sys
 sys.path.insert(0, '..') # import parent folder
+
 import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
 from asyncua.common.subscription import SubHandler
 from asyncua import Node, ua
+
+from gpiozero import Motor
 
 class SubscriptionHandler (SubHandler):
     """
@@ -19,11 +22,16 @@ class SubscriptionHandler (SubHandler):
     """
 
     def datachange_notification(self, node: Node, val, data):
+        global NEW_MOTOR_INP
         print(f'datachange_notification node: {node} value: {val}')
+        motor_speed_is = val
+        NEW_MOTOR_INP=True
 
+real_motor = Motor(26, 20)
+global MOTOR_STARTED, NEW_MOTOR_INP
+global dc_motor_inp, dc_motor_rpm, motor_speed_is
+MOTOR_STARTED, NEW_MOTOR_INP = False, False
 # add start, stop methods for motor
-global MOTOR_STARTED, dc_motor_inp, dc_motor_rpm
-MOTOR_STARTED = False
 # @uamethod: Method decorator to automatically
 # convert arguments and output to and from variant
 @uamethod
@@ -41,7 +49,10 @@ async def stop_motor(parent):
         MOTOR_STARTED = False
         print("Motor stopped")
 
-
+async def set_speed():
+    global MOTOR_STARTED, NEW_MOTOR_INP, real_motor
+    if MOTOR_STARTED and NEW_MOTOR_INP:
+        motor.forward(speed)
 
 async def main(host='localhost'):
     # init server, set endpoint
@@ -80,6 +91,7 @@ async def main(host='localhost'):
     # start
     async with server:
         while True:
+            await set_speed()
             await asyncio.sleep(1)
 
 if __name__ == "__main__":
