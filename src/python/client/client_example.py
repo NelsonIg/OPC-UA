@@ -12,7 +12,7 @@ from asyncua import Client, Node, ua
 from asyncua.common.subscription import SubHandler
 
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
-_logger = logging.getLogger('asyncua')
+_logger = logging.getLogger() #'asyncua')
 
 global STOP_FLAG
 STOP_FLAG = False
@@ -29,7 +29,7 @@ class SubscriptionHandler (SubHandler):
         This method will be called when the Client received a data change message from the Server.
         """
         global STOP_FLAG
-        _logger.info('datachange_notification node: %r value: %s', node, val)
+        _logger.info(f'datachange_notification node: {node} value: {val}')
         if val > 1:
             STOP_FLAG = True
 
@@ -37,7 +37,7 @@ class SubscriptionHandler (SubHandler):
 
 async def main():
     """
-    Open communication to Server and then sleep forever
+    Open communication to Server
     """
     server_endpoint = "opc.tcp://localhost:4840/server_example/"
     client = Client(url=server_endpoint)
@@ -62,7 +62,7 @@ async def main():
         # finally, stop motor if stop flag is set by sub_handler
         # and delete subscription and exit context manager
         await motor_inp.write_value(1)
-        _logger.info('wrote 20 to input value')
+        _logger.info('wrote 1 to input value')
         await motor_obj.call_method(f'{idx}:start_motor')
         _logger.info('motor started')
         while True:

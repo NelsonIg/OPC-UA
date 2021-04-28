@@ -31,7 +31,7 @@ async def stop_motor(parent):
     global MOTOR_STARTED
     if MOTOR_STARTED:
         MOTOR_STARTED = False
-        print("Motor stopped\n")
+        print("Motor stopped")
 
 # simulate motor
 async def motor_simulation():
@@ -42,8 +42,10 @@ async def motor_simulation():
     while True:
         while MOTOR_STARTED:
             inp = await dc_motor_inp.get_value() # motor input
+            print("Input:",inp)
             rpm_fin = inp*10 # final rpm value
             rpm_now = await dc_motor_rpm.get_value() # current rpm value
+            print("RPM:", rpm_now)
             if rpm_fin>rpm_now: # increase rpm
                 await dc_motor_rpm.write_value(rpm_now+inp/10)
             elif rpm_fin<rpm_now: # decrease rpm
@@ -53,24 +55,25 @@ async def motor_simulation():
             await asyncio.sleep(0.1) # sleep 100ms
         # motor stopped
         await dc_motor_rpm.write_value(0)
+        print("RPM:", await  dc_motor_rpm.get_value())
         await asyncio.sleep(0.1)  # sleep 100ms
 
 
-async def main():
+async def main(host='localhost'):
     # init server, set endpoint
     server = Server()
     await server.init()
-    server.set_endpoint("opc.tcp://localhost:4840/server_example/")
+    server.set_endpoint(f"opc.tcp://{host}:4840/server_example/")
 
     # setup of namespace, not needed
     uri = "example-uri.edu"
     idx = await server.register_namespace(uri)
 
-    # Create new object type dc_motor_base
+    # Create new object type
     base_obj_motor = await server.nodes.base_object_type.add_object_type(nodeid=idx, bname="BaseMotor")
     base_var_rpm = await base_obj_motor.add_variable(nodeid=idx, bname="RPM", val=0.0)
     base_var_inp = await base_obj_motor.add_variable(nodeid=idx, bname="Input", val=0.0)
-    # ensure that variable will be instanciated together with object
+    # ensure that variable will be instantiated together with object
     await base_var_rpm.set_modelling_rule(True)
     await base_var_inp.set_modelling_rule(True)
 
@@ -99,4 +102,8 @@ async def main():
             await asyncio.sleep(1)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    if len(sys.argv)>1:
+        host = sys.argv[1]
+    else:
+        host='localhost'
+    asyncio.run(main(host))
