@@ -29,6 +29,7 @@ class SubscriptionHandler (SubHandler):
 
 real_motor = Motor(26, 20)
 global MOTOR_STARTED, NEW_MOTOR_INP
+global STOP_FLAG, START_FLAG
 global dc_motor_inp, dc_motor_rpm, motor_speed_is
 MOTOR_STARTED, NEW_MOTOR_INP = False, False
 # add start, stop methods for motor
@@ -36,31 +37,32 @@ MOTOR_STARTED, NEW_MOTOR_INP = False, False
 # convert arguments and output to and from variant
 @uamethod
 async def start_motor(parent):
-    global  MOTOR_STARTED
-    if not MOTOR_STARTED:
-        MOTOR_STARTED = True
+    global  START_FLAG
+    if not START_FLAG:
+        START_FLAG = True
         print("Motor started.")
 
 
 @uamethod
 async def stop_motor(parent):
-    global MOTOR_STARTED
-    if MOTOR_STARTED:
-        MOTOR_STARTED = False
+    global STOP_FLAG
+    if not STOP_FLAG:
+        STOP_FLAG = True
         print("Motor stopped")
 
 async def set_speed():
-    global MOTOR_STARTED, NEW_MOTOR_INP, real_motor, motor_speed_is
-    if MOTOR_STARTED:
+    global START_FLAG, STOP_FLAG, NEW_MOTOR_INP, real_motor, motor_speed_is
+    if START_FLAG:
         if NEW_MOTOR_INP:
             real_motor.forward(motor_speed_is)
             NEW_MOTOR_INP = False
+            START_FLAG = False
             print(f'motor set to {motor_speed_is}')
-    elif motor_speed_is!=0:
-        motor_speed_is= 0
-        real_motor.forward(motor_speed_is)
+    elif STOP_FLAG:
+        real_motor.forward(0)
         NEW_MOTOR_INP = True
-        print(f'motor set to {motor_speed_is}')
+        STOP_FLAG = False
+        print(f'motor set to 0')
 
 async def main(host='localhost'):
     # init server, set endpoint
