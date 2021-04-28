@@ -31,7 +31,7 @@ real_motor = Motor(26, 20)
 global MOTOR_STARTED, NEW_MOTOR_INP
 global STOP_FLAG, START_FLAG
 global dc_motor_inp, dc_motor_rpm, motor_speed_is
-MOTOR_STARTED, NEW_MOTOR_INP = False, False
+START_FLAG, STOP_FLAG, NEW_MOTOR_INP = False, False, False
 # add start, stop methods for motor
 # @uamethod: Method decorator to automatically
 # convert arguments and output to and from variant
