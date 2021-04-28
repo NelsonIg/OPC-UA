@@ -52,7 +52,9 @@ async def stop_motor(parent):
 async def set_speed():
     global MOTOR_STARTED, NEW_MOTOR_INP, real_motor
     if MOTOR_STARTED and NEW_MOTOR_INP:
-        motor.forward(speed)
+        real_motor.forward(motor_speed_is)
+        NEW_MOTOR_INP = False
+        print(f'motor set to {motor_speed_is}')
 
 async def main(host='localhost'):
     # init server, set endpoint
