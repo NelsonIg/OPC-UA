@@ -11,6 +11,7 @@ sys.path.insert(0, '..') # import parent folder
 import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
 from asyncua.common.subscription import SubHandler
+from asyncua import Node, ua
 
 class SubscriptionHandler (SubHandler):
     """
@@ -72,7 +73,7 @@ async def main(host='localhost'):
     await dc_motor.add_method(idx, "stop_motor", stop_motor, [], [])
     # subscription
     sub_handler = SubscriptionHandler()
-    subscription = await client.create_subscription(period=50, handler=sub_handler)
+    subscription = await server.create_subscription(period=10, handler=sub_handler)
     # subscribe to data change, only current data queuesize=1
     await subscription.subscribe_data_change(nodes=dc_motor_inp, queuesize=1)
 
