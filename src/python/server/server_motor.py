@@ -58,7 +58,7 @@ async def set_speed():
             NEW_MOTOR_INP = False
             START_FLAG = False
             print(f'motor set to {motor_speed_is}')
-    elif STOP_FLAG:
+    if STOP_FLAG:
         real_motor.forward(0)
         NEW_MOTOR_INP = True
         STOP_FLAG = False
