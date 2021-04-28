@@ -22,9 +22,13 @@ class SubscriptionHandler (SubHandler):
     """
 
     def datachange_notification(self, node: Node, val, data):
-        global NEW_MOTOR_INP, motor_speed_is
+        global STOP_FLAG, START_FLAG, NEW_MOTOR_INP, motor_speed_is
         print(f'datachange_notification node: {node} value: {val}')
         motor_speed_is = val
+        if val > 0:
+            START_FLAG=True
+        else:
+            STOP_FLAG=True
         NEW_MOTOR_INP=True
 
 real_motor = Motor(26, 20)
