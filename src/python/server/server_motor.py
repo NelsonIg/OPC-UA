@@ -56,11 +56,12 @@ async def set_speed():
             real_motor.forward(motor_speed_is)
             NEW_MOTOR_INP = False
             print(f'motor set to {motor_speed_is}')
-    else:
-        real_motor.forward(0)
+    elif motor_speed_is!=0:
+        motor_speed_is= 0
+        real_motor.forward(motor_speed_is)
         NEW_MOTOR_INP = True
-        print(f'motor set to 0')
-        
+        print(f'motor set to {motor_speed_is}')
+
 async def main(host='localhost'):
     # init server, set endpoint
     server = Server()
