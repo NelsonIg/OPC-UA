@@ -52,7 +52,10 @@ async def main():
                     diff = rising_edge_old-rising_edge_new
                     diff_vec = np.array([diff, diff_vec[1::]])
             else:
-                if counter +=1>20: diff_vec = np.zeros(5)
+                counter +=1
+                if counter>20: diff_vec = np.zeros(5)
             mean_diff = diff_vec.mean()
             print(mean_diff)
 
+if __main__ == '__name__':
+    asyncio.run(main())
