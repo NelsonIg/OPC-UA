@@ -56,6 +56,7 @@ async def main():
                 if counter>20: diff_vec = np.zeros(5)
             mean_diff = diff_vec.mean()
             print(mean_diff)
+            await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
     asyncio.run(main())
