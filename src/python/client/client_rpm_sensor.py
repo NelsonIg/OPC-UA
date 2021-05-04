@@ -86,7 +86,7 @@ async def main(host='localhost'):
         task_compute_mean = asyncio.create_task(clalc_time_diff())
 
         
-        await task_compute_mean
+        #await task_compute_mean
         print('send rpm started')
         await task_send_rpm
 
