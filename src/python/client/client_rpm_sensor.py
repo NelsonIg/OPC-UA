@@ -51,7 +51,8 @@ async def main(host='localhost'):
                 if rising_edge_new and rising_edge_old:
                     # updatte mean difference between pulses
                     diff = rising_edge_old-rising_edge_new
-                    diff_vec = np.array([diff, diff_vec[1::]])
+                    diff_vec[1::] = diff_vec[:-1:1]])
+                    diff[0] = diff
             else:
                 counter +=1
                 if counter>20: diff_vec = np.zeros(5)
