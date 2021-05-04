@@ -87,6 +87,7 @@ async def main(host='localhost'):
 
         
         await task_compute_mean
+        print('send rpm started')
         await task_send_rpm
 
 
