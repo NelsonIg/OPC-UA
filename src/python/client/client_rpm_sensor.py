@@ -35,37 +35,35 @@ async def clalc_time_diff():
     """
         Calculate Time Difference between pulses
     """
-    global rising_edge_detected, rising_edge_old, rising_edge_new
-    rising_edge_new = None
-    n_pulses = 10
-    diff_vec = np.zeros(n_pulses) # stores 5 last time differences of pulses
-    counter = 0
-    if rising_edge_detected:
-        rising_edge_detected = False
+    while True:
+        global rising_edge_detected, rising_edge_old, rising_edge_new
+        rising_edge_new = None
+        n_pulses = 10
+        diff_vec = np.zeros(n_pulses) # stores 5 last time differences of pulses
         counter = 0
+        if rising_edge_detected:
+            rising_edge_detected = False
+            counter = 0
 
-        if rising_edge_new and rising_edge_old:
-            # updatte mean difference between pulses
-            diff = rising_edge_new-rising_edge_old
-            diff_vec[1::] = diff_vec[:-1:1]
-            diff_vec[0] = diff
-    else:
-        counter +=1
-        if counter>4: diff_vec = np.zeros(n_pulses)
-    mean_diff = diff_vec.mean()
-    # print(mean_diff)
-    await asyncio.sleep(0.01)
+            if rising_edge_new and rising_edge_old:
+                # updatte mean difference between pulses
+                diff = rising_edge_new-rising_edge_old
+                diff_vec[1::] = diff_vec[:-1:1]
+                diff_vec[0] = diff
+        else:
+            counter +=1
+            if counter>4: diff_vec = np.zeros(n_pulses)
+        mean_diff = diff_vec.mean()
+        print('mean:\t',mean_diff)
+        await asyncio.sleep(0.01)
 
 async def send_rpm():
-    while True:
         if mean_diff==0:
             rpm=0
         else:
             rpm = 60/(mean_diff*20*10**(-9))
         await motor_rpm.write_value(rpm)
-        print()
-        print(rpm)
-        asyncio.sleep(0.01)
+        print('rpm\t',rpm)
 
 async def main(host='localhost'):
     global motor_rpm
@@ -82,15 +80,17 @@ async def main(host='localhost'):
         motor_rpm = await client.nodes.objects.get_child(path=[f"{idx}:Motor", f"{idx}:RPM"])
 
 
-        # task to write to motor_rpm
-        task_send_rpm = asyncio.create_task(send_rpm())
+        # # task to write to motor_rpm
+        # task_send_rpm = asyncio.create_task(send_rpm())
         # task to compute mean time difference between pulses
-        task_compute_mean = asyncio.create_task(clalc_time_diff())
+        task_compute_mean = asyncio.to_thread(clalc_time_diff())
 
         
         await task_compute_mean
         print('send rpm started')
-        await task_send_rpm
+        while True:
+            await task_send_rpm
+            asyncio.sleep(0.01)
 
 
 if __name__ == "__main__":
