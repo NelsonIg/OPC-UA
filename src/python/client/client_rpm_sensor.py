@@ -40,26 +40,28 @@ async def clalc_time_diff():
     n_pulses = 10
     diff_vec = np.zeros(n_pulses) # stores 5 last time differences of pulses
     counter = 0
-    while True:
-        if rising_edge_detected:
-            rising_edge_detected = False
-            counter = 0
+    if rising_edge_detected:
+        rising_edge_detected = False
+        counter = 0
 
-            if rising_edge_new and rising_edge_old:
-                # updatte mean difference between pulses
-                diff = rising_edge_new-rising_edge_old
-                diff_vec[1::] = diff_vec[:-1:1]
-                diff_vec[0] = diff
-        else:
-            counter +=1
-            if counter>4: diff_vec = np.zeros(n_pulses)
-        mean_diff = diff_vec.mean()
-        # print(mean_diff)
-        await asyncio.sleep(0.01)
+        if rising_edge_new and rising_edge_old:
+            # updatte mean difference between pulses
+            diff = rising_edge_new-rising_edge_old
+            diff_vec[1::] = diff_vec[:-1:1]
+            diff_vec[0] = diff
+    else:
+        counter +=1
+        if counter>4: diff_vec = np.zeros(n_pulses)
+    mean_diff = diff_vec.mean()
+    # print(mean_diff)
+    await asyncio.sleep(0.01)
 
 async def send_rpm():
     while True:
-        rpm = 60/(mean_diff*20*10**(-9))
+        if mean_diff=0:
+            rpm=0
+        else:
+            rpm = 60/(mean_diff*20*10**(-9))
         await motor_rpm.write_value(rpm)
         print()
         print(rpm)
@@ -86,7 +88,7 @@ async def main(host='localhost'):
         task_compute_mean = asyncio.create_task(clalc_time_diff())
 
         
-        #await task_compute_mean
+        await task_compute_mean
         print('send rpm started')
         await task_send_rpm
 
