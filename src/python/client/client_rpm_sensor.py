@@ -50,7 +50,7 @@ async def main(host='localhost'):
 
                 if rising_edge_new and rising_edge_old:
                     # updatte mean difference between pulses
-                    diff = rising_edge_old-rising_edge_new
+                    diff = rising_edge_new-rising_edge_old
                     diff_vec[1::] = diff_vec[:-1:1]
                     diff_vec[0] = diff
             else:
