@@ -25,10 +25,10 @@ def callback_high_edge():
     global rising_edge_detected
     rising_edge_detected = True
 
-async def main():
+async def main(host='localhost'):
     puls.when_pressed = callback_high_edge # rising edge
 
-    server_endpoint = "opc.tcp://localhost:4840/server_example/"
+    server_endpoint = f"opc.tcp://{host}:4840/server_example/"
     client = Client(url=server_endpoint)
     async with client:
         idx = await client.get_namespace_index(uri="example-uri.edu")
@@ -58,5 +58,9 @@ async def main():
             print(mean_diff)
             await asyncio.sleep(0.1)
 
-if __name__ == '__main__':
-    asyncio.run(main())
+if __name__ == "__main__":
+    if len(sys.argv)>1:
+        host = sys.argv[1]
+    else:
+        host='localhost'
+    asyncio.run(main(host))
