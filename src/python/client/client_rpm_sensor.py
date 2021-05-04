@@ -58,7 +58,7 @@ async def clalc_time_diff():
 
 async def send_rpm():
     while True:
-        if mean_diff=0:
+        if mean_diff==0:
             rpm=0
         else:
             rpm = 60/(mean_diff*20*10**(-9))
