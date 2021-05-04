@@ -18,14 +18,24 @@ logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger() #'asyncua')
 
 
-global rising_edge_detected
+global rising_edge_detected, rising_edge_old, rising_edge_new
 rising_edge_detected = False
+rising_edge_old, rising_edge_new = None, None
 
 def callback_high_edge():
-    global rising_edge_detected
+    global rising_edge_detected, rising_edge_old, rising_edge_new
+    rising_edge_old = rising_edge_new
+    rising_edge_new = time.perf_counter_ns()
     rising_edge_detected = True
 
+
+global motor_rpm, mean_diff
+async def send_rpm():
+    pass
+
 async def main(host='localhost'):
+    global motor_rpm
+
     puls.when_pressed = callback_high_edge # rising edge
 
     server_endpoint = f"opc.tcp://{host}:4840/server_example/"
@@ -37,16 +47,15 @@ async def main(host='localhost'):
         # get motor rpm variable
         motor_rpm = await client.nodes.objects.get_child(path=[f"{idx}:Motor", f"{idx}:RPM"])
 
-        global rising_edge_detected
+        global rising_edge_detected, rising_edge_old, rising_edge_new
         rising_edge_new = None
-        diff_vec = np.zeros(5) # stores 5 last time differences of pulses
+        n_pulses = 10
+        diff_vec = np.zeros(n_pulses) # stores 5 last time differences of pulses
         counter = 0
         while True:
             if rising_edge_detected:
                 rising_edge_detected = False
                 counter = 0
-                rising_edge_old = rising_edge_new
-                rising_edge_new = time.perf_counter_ns()
 
                 if rising_edge_new and rising_edge_old:
                     # updatte mean difference between pulses
@@ -55,9 +64,10 @@ async def main(host='localhost'):
                     diff_vec[0] = diff
             else:
                 counter +=1
-                if counter>1000: diff_vec = np.zeros(5)
+                if counter>1000: diff_vec = np.zeros(n_pulses)
             mean_diff = diff_vec.mean()
             print(mean_diff)
+            await asyncio.sleep(0.01)
 
 
 if __name__ == "__main__":
