@@ -57,5 +57,5 @@ async def main():
             mean_diff = diff_vec.mean()
             print(mean_diff)
 
-if __main__ == '__name__':
+if __name__ == '__main__':
     asyncio.run(main())
