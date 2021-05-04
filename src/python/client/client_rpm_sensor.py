@@ -55,7 +55,7 @@ async def main(host='localhost'):
                     diff_vec[0] = diff
             else:
                 counter +=1
-                if counter>20: diff_vec = np.zeros(5)
+                if counter>1000: diff_vec = np.zeros(5)
             mean_diff = diff_vec.mean()
             print(mean_diff)
 
