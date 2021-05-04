@@ -31,7 +31,7 @@ def callback_high_edge():
 
 global motor_rpm, mean_diff
 mean_diff = 0
-async def clalc_time_diff():
+def clalc_time_diff():
     """
         Calculate Time Difference between pulses
     """
@@ -55,7 +55,7 @@ async def clalc_time_diff():
             if counter>4: diff_vec = np.zeros(n_pulses)
         mean_diff = diff_vec.mean()
         print('mean:\t',mean_diff)
-        await asyncio.sleep(0.01)
+        time.sleep(0.01)
 
 async def send_rpm():
         if mean_diff==0:
@@ -83,10 +83,8 @@ async def main(host='localhost'):
         # # task to write to motor_rpm
         # task_send_rpm = asyncio.create_task(send_rpm())
         # task to compute mean time difference between pulses
-        task_compute_mean = asyncio.to_thread(clalc_time_diff())
+        await asyncio.to_thread(clalc_time_diff)
 
-        
-        await task_compute_mean
         print('send rpm started')
         while True:
             await task_send_rpm
