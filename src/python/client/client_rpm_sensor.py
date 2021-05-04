@@ -61,6 +61,7 @@ async def send_rpm():
     while True:
         rpm = 60/(mean_diff*20*10**(-9))
         await motor_rpm.write_value(rpm)
+        print(rpm)
         asyncio.sleep(0.01)
 
 async def main(host='localhost'):
