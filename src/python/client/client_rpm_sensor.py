@@ -64,7 +64,7 @@ async def main(host='localhost'):
                     diff_vec[0] = diff
             else:
                 counter +=1
-                if counter>2: diff_vec = np.zeros(n_pulses)
+                if counter>4: diff_vec = np.zeros(n_pulses)
             mean_diff = diff_vec.mean()
             print(mean_diff)
             await asyncio.sleep(0.01)
