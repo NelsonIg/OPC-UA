@@ -54,13 +54,14 @@ async def clalc_time_diff():
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
         mean_diff = diff_vec.mean()
-        print(mean_diff)
+        # print(mean_diff)
         await asyncio.sleep(0.01)
 
 async def send_rpm():
     while True:
         rpm = 60/(mean_diff*20*10**(-9))
         await motor_rpm.write_value(rpm)
+        print()
         print(rpm)
         asyncio.sleep(0.01)
 
@@ -87,8 +88,7 @@ async def main(host='localhost'):
         
         await task_compute_mean
         await task_send_rpm
-        while True:
-            asyncio.sleep(1)
+
 
 if __name__ == "__main__":
     if len(sys.argv)>1:
