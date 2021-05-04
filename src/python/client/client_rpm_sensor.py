@@ -37,6 +37,7 @@ async def main(host='localhost'):
         # get motor rpm variable
         motor_rpm = await client.nodes.objects.get_child(path=[f"{idx}:Motor", f"{idx}:RPM"])
 
+        global rising_edge_detected
         rising_edge_new = None
         diff_vec = np.zeros(5) # stores 5 last time differences of pulses
         counter = 0
