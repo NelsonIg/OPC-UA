@@ -96,8 +96,8 @@ async def main(host='localhost'):
 
 
 if __name__ == "__main__":
-    p = Process(target=clalc_time_diff)
-    p.start()
+   # p = Process(target=clalc_time_diff)
+    # p.start()
     if len(sys.argv)>1:
         host = sys.argv[1]
     else:
