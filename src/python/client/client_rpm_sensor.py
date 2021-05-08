@@ -59,6 +59,10 @@ def clalc_time_diff():
         else:
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
+        if diff_vec.mean()<0:
+            print(f'Thread\tdiff: {diff}')
+            print(f'Thread\tdiff_vec: {diff_vec}')
+            print(f'Thread\tmean_diff: {mean_diff.value}')
         mean_diff.value = int(diff_vec.mean())
         # print(f'Thread\tdiff: {diff}')
         # print(f'Thread\tdiff_vec: {diff_vec}')
