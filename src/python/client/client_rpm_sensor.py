@@ -38,13 +38,14 @@ def clalc_time_diff():
     """
     print('Thread started')
     counter = 0
+    n_pulses = 50
+    diff = 0
+    diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
     while True:
         global rising_edge_detected, rising_edge_old,\
                 rising_edge_new, mean_diff
 
         # rising_edge_new = None
-        n_pulses = 50
-        diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
         # counter = 0
         if rising_edge_detected.value:
             rising_edge_detected.value = False
