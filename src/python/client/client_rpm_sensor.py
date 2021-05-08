@@ -27,7 +27,7 @@ def callback_high_edge():
     global rising_edge_detected, rising_edge_old, rising_edge_new
     rising_edge_old.value = rising_edge_new.value
     rising_edge_new.value = time.perf_counter_ns()
-    rising_edge_detected.value = True
+    rising_edge_detected.value = 1
 
 
 global motor_rpm, mean_diff
@@ -47,7 +47,7 @@ def clalc_time_diff():
         diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
         # counter = 0
         if rising_edge_detected.value:
-            rising_edge_detected = False
+            rising_edge_detected = 0
             counter = 0
 
             if rising_edge_new.value and rising_edge_old.value:
