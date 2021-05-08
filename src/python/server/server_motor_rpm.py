@@ -87,9 +87,10 @@ async def stop_motor(parent):
 #*********************** Other functions *******************************#
 global dc_motor_inp, dc_motor_rpm, motor_speed_is
 
+global motor
+motor = Motor(26, 20)
 async def set_speed():
     global START_FLAG, STOP_FLAG, NEW_MOTOR_INP, motor_speed_is
-    motor = Motor(26, 20)
     if START_FLAG:
         if NEW_MOTOR_INP:
             motor.forward(motor_speed_is)
