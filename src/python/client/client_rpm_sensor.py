@@ -59,18 +59,20 @@ def clalc_time_diff():
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
         mean_diff.value = diff_vec.mean()
+        print(f'Thread\tdiff: {diff}')
+        print(f'Thread\tdiff_vec: {diff_vec}')
         print(f'Thread\tmean_diff: {mean_diff.value}')
         time.sleep(2)
 
 async def send_rpm():
     global mean_diff
-    print(f'async\tmean_diff {mean_diff.value}')
+    # print(f'async\tmean_diff {mean_diff.value}')
     if mean_diff.value==0:
         rpm=0
     else:
         rpm = 60/((mean_diff.value)*20*(10**(-9)))
     await motor_rpm.write_value(rpm)
-    print('rpm\t',rpm)
+    # print('rpm\t',rpm)
 
 async def main(host='localhost'):
     global motor_rpm
