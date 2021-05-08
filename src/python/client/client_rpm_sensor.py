@@ -31,14 +31,14 @@ def callback_high_edge():
 
 
 global motor_rpm, mean_diff
-mean_diff = Value('d', 0.0)
+mean_diff = Value('i', 0)
 def clalc_time_diff():
     """
         Calculate Time Difference between pulses
     """
     print('Thread started')
     counter = 0
-    n_pulses = 50
+    n_pulses = 5
     diff = 0
     diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
     while True:
