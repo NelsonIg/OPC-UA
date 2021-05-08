@@ -9,6 +9,7 @@ Object: DC Motor
 import sys
 sys.path.insert(0, '..') # import parent folder
 
+import logging
 import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
 from asyncua.common.subscription import SubHandler
