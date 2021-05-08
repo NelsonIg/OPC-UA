@@ -47,7 +47,7 @@ def clalc_time_diff():
         diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
         # counter = 0
         if rising_edge_detected.value:
-            rising_edge_detected = 0
+            rising_edge_detected.value = 0
             counter = 0
 
             if rising_edge_new.value and rising_edge_old.value:
