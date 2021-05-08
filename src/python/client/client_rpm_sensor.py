@@ -63,12 +63,14 @@ def clalc_time_diff():
         print(f'Thread\tmean_diff: {mean_diff.value}')
 
 async def send_rpm():
-        if mean_diff.value==0:
-            rpm=0
-        else:
-            rpm = 60/(mean_diff.value*20*10**(-9))
-        await motor_rpm.write_value(rpm)
-        print('rpm\t',rpm)
+    global mean_diff
+    print(f'async\tmean_diff{mean_diff.value}')
+    if mean_diff.value==0:
+        rpm=0
+    else:
+        rpm = 60/(mean_diff.value*20*10**(-9))
+    await motor_rpm.write_value(rpm)
+    print('rpm\t',rpm)
 
 async def main(host='localhost'):
     global motor_rpm
