@@ -121,8 +121,10 @@ def clalc_time_diff():
         if EDGE_DETECTED.value:
             EDGE_DETECTED.value = False
             counter = 0
+            print('Edge detected')
 
             if NEW_EDGE.value and OLD_EDGE.value:
+                print('new edge and old edge')
                 # update mean difference between pulses
                 diff = NEW_EDGE.value-OLD_EDGE.value
                 if diff >0: # ignore random wrong values
@@ -132,9 +134,9 @@ def clalc_time_diff():
             counter +=1
             if counter>50: diff_vec = np.zeros(n_pulses)
         mean_diff.value = int(np.mean(diff_vec))
-        print(f'Thread\tdiff: {diff}')
-        print(f'Thread\tdiff_vec: {diff_vec}')
-        print(f'Thread\tmean_diff: {mean_diff.value}')
+        # print(f'Thread\tdiff: {diff}')
+        # print(f'Thread\tdiff_vec: {diff_vec}')
+        # print(f'Thread\tmean_diff: {mean_diff.value}')
         time.sleep(1)
 
 async def set_rpm():
