@@ -72,7 +72,7 @@ async def main(host='localhost'):
     # init server, set endpoint
     server = Server()
     await server.init()
-    server.set_endpoint(f"opc.tcp://{host}:4840/server_example/")
+    server.set_endpoint(f"opc.tcp://{host}:4840/server")
 
     # setup of namespace, not needed
     uri = "example-uri.edu"

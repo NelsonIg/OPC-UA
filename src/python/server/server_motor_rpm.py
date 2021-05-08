@@ -137,7 +137,7 @@ def clalc_time_diff():
         # print(f'Thread\tdiff: {diff}')
         # print(f'Thread\tdiff_vec: {diff_vec}')
         # print(f'Thread\tmean_diff: {mean_diff.value}')
-        time.sleep(1)
+        time.sleep(0.001)
 
 async def set_rpm():
     global mean_diff, dc_motor_rpm
