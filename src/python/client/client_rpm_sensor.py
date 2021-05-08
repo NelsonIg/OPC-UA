@@ -59,7 +59,8 @@ def clalc_time_diff():
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
         mean_diff.value = diff_vec.mean()
-        time.sleep(0.01)
+        time.sleep(1)
+        print(f'Thread\tmean_diff: {mean_diff.value}')
 
 async def send_rpm():
         if mean_diff.value==0:
