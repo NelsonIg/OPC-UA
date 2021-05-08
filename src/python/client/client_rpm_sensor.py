@@ -20,8 +20,8 @@ _logger = logging.getLogger() #'asyncua')
 
 # Define Flags as multiprocessing.Value so memory is shared
 global rising_edge_detected, rising_edge_old, rising_edge_new
-rising_edge_detected = Value('i', False)
-rising_edge_old, rising_edge_new = Value('i', False), Value('i', False)
+rising_edge_detected = Value('i', 0)
+rising_edge_old, rising_edge_new = Value('i', 0), Value('i', 0)
 
 def callback_high_edge():
     global rising_edge_detected, rising_edge_old, rising_edge_new
