@@ -38,7 +38,7 @@ def clalc_time_diff():
     """
     print('Thread started')
     counter = 0
-    n_pulses = 10
+    n_pulses = 5
     diff = 0
     diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
     while True:
