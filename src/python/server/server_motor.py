@@ -106,7 +106,7 @@ async def main(host='localhost'):
     async with server:
         while True:
             await set_speed()
-            await asyncio.sleep(.50)
+            await asyncio.sleep(.01)
 
 if __name__ == "__main__":
     if len(sys.argv)>1:
