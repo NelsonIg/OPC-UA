@@ -88,13 +88,13 @@ async def main(host='localhost'):
 
 
         # # task to write to motor_rpm
-        task_send_rpm = asyncio.create_task(send_rpm())
+        # task_send_rpm = asyncio.create_task(send_rpm())
         # task to compute mean time difference between pulses
         
 
         print('send rpm started')
         while True:
-            await task_send_rpm
+            await send_rpm()
             await asyncio.sleep(0.01)
 
 
