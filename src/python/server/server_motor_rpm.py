@@ -187,7 +187,7 @@ async def main(host='localhost'):
     async with server:
         while True:
             await asyncio.gather(set_speed(), set_rpm())
-            await asyncio.sleep(.50)
+            await asyncio.sleep(.10)
 
 if __name__ == "__main__":
     # callback for detecting rising edges
