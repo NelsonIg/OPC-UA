@@ -92,7 +92,7 @@ async def main(host='localhost'):
         print('send rpm started')
         while True:
             await task_send_rpm
-            asyncio.sleep(0.01)
+            await asyncio.sleep(0.01)
 
 
 if __name__ == "__main__":
@@ -102,4 +102,9 @@ if __name__ == "__main__":
         host = sys.argv[1]
     else:
         host='localhost'
-    asyncio.run(main(host))
+    try:
+        asyncio.run(main(host))
+    except Exception as e:
+        print(e)
+        p.kill()
+        p.join()
