@@ -43,7 +43,7 @@ def clalc_time_diff():
                 rising_edge_new, mean_diff
 
         # rising_edge_new = None
-        n_pulses = 50
+        n_pulses = 5
         diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
         # counter = 0
         if rising_edge_detected.value:
@@ -58,7 +58,7 @@ def clalc_time_diff():
         else:
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
-        mean_diff.value = diff
+        mean_diff.value = diff_vec.mean()
         print(f'Thread\tmean_diff: {mean_diff.value}')
         time.sleep(2)
 
