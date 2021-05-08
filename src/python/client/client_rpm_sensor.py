@@ -59,8 +59,8 @@ def clalc_time_diff():
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
         mean_diff.value = diff_vec.mean()
-        time.sleep(1)
         print(f'Thread\tmean_diff: {mean_diff.value}')
+        time.sleep(2)
 
 async def send_rpm():
     global mean_diff
@@ -95,7 +95,7 @@ async def main(host='localhost'):
         print('send rpm started')
         while True:
             await send_rpm()
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
