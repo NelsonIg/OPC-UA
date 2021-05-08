@@ -54,8 +54,9 @@ def clalc_time_diff():
             if rising_edge_new.value and rising_edge_old.value:
                 # update mean difference between pulses
                 diff = rising_edge_new.value-rising_edge_old.value
-                diff_vec[1::] = diff_vec[:-1:1]
-                diff_vec[0] = diff
+                if diff >0: # ignore random wrong values
+                    diff_vec[1::] = diff_vec[:-1:1]
+                    diff_vec[0] = diff
         else:
             counter +=1
             if counter>4: diff_vec = np.zeros(n_pulses)
