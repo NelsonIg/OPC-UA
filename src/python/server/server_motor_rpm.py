@@ -109,7 +109,7 @@ def clalc_time_diff():
     """
         Calculate Time Difference between pulses
     """
-    print('Thread started')
+    # print('Thread started')
     counter = 0
     n_pulses = 5
     diff = 0
@@ -121,10 +121,10 @@ def clalc_time_diff():
         if EDGE_DETECTED.value:
             EDGE_DETECTED.value = False
             counter = 0
-            print('Edge detected')
+            # print('Edge detected')
 
             if NEW_EDGE.value and OLD_EDGE.value:
-                print('new edge and old edge')
+                # print('new edge and old edge')
                 # update mean difference between pulses
                 diff = NEW_EDGE.value-OLD_EDGE.value
                 if diff >0: # ignore random wrong values
@@ -147,7 +147,7 @@ async def set_rpm():
     else:
         rpm = 60/((mean_diff.value)*20*(10**(-9)))
     await dc_motor_rpm.write_value(rpm)
-    # print('rpm\t',rpm)
+    print('rpm\t',rpm)
 
 async def main(host='localhost'):
     # init server, set endpoint
@@ -190,6 +190,9 @@ async def main(host='localhost'):
             await asyncio.sleep(.50)
 
 if __name__ == "__main__":
+    # callback for detecting rising edges
+    puls.when_pressed = callback_high_edge # rising edge
+    # thread for computing time difference of rising edges
     p = Process(target=clalc_time_diff)
     p.start()
 
