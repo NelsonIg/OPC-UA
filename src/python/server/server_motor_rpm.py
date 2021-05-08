@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Server for DC Motor Control and RPM sensing
+Server which
+    - controls DC Motor
+    - computes RPM
+
 
 Object: DC Motor
     Variables: inp_value, rounds_per_min
@@ -9,7 +12,6 @@ Object: DC Motor
 import sys
 sys.path.insert(0, '..') # import parent folder
 
-import logging
 import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
 from asyncua.common.subscription import SubHandler
@@ -17,10 +19,21 @@ from asyncua import Node, ua
 
 from gpiozero import Motor, Button
 
+import logging
+
 from multiprocessing import Process, Value
 
 import time
 import numpy as np
+
+puls = Button(14)
+
+logging.basicConfig(level=logging.INFO) # logging.INFO as default
+_logger = logging.getLogger() #'asyncua')
+
+#*********************** Callback functions *******************************#
+global MOTOR_STARTED, NEW_MOTOR_INP
+global STOP_FLAG, START_FLAG
 
 class SubscriptionHandler (SubHandler):
     """
@@ -37,79 +50,22 @@ class SubscriptionHandler (SubHandler):
             STOP_FLAG=True
         NEW_MOTOR_INP=True
 
-
-puls = Button(14)
-
-logging.basicConfig(level=logging.INFO) # logging.INFO as default
-_logger = logging.getLogger() #'asyncua')
-
-
-
 # Define Flags as multiprocessing.Value so memory is shared
-global rising_edge_detected, rising_edge_old, rising_edge_new
-rising_edge_detected = Value('i', False)
-rising_edge_old, rising_edge_new = Value('i', False), Value('i', False)
+global EDGE_DETECTED, OLD_EDGE, NEW_EDGE
+EDGE_DETECTED = Value('i', False)
+OLD_EDGE, NEW_EDGE = Value('i', False), Value('i', False)
 
 def callback_high_edge():
-    global rising_edge_detected, rising_edge_old, rising_edge_new
-    rising_edge_old.value = rising_edge_new.value
-    rising_edge_new.value = time.perf_counter_ns()
-    rising_edge_detected.value = True
+    global EDGE_DETECTED, OLD_EDGE, NEW_EDGE
+    OLD_EDGE.value = NEW_EDGE.value
+    NEW_EDGE.value = time.perf_counter_ns()
+    EDGE_DETECTED.value = True
 
 
-global motor_rpm, mean_diff
-mean_diff = Value('i', 0)
-def clalc_time_diff():
-    """
-        Calculate Time Difference between pulses
-    """
-    print('Thread started')
-    counter = 0
-    n_pulses = 5
-    diff = 0
-    diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
-    while True:
-        global rising_edge_detected, rising_edge_old,\
-                rising_edge_new, mean_diff
-
-        # rising_edge_new = None
-        # counter = 0
-        if rising_edge_detected.value:
-            rising_edge_detected.value = False
-            counter = 0
-
-            if rising_edge_new.value and rising_edge_old.value:
-                # update mean difference between pulses
-                diff = rising_edge_new.value-rising_edge_old.value
-                if diff >0: # ignore random wrong values
-                    diff_vec[1::] = diff_vec[:-1:1]
-                    diff_vec[0] = diff
-        else:
-            counter +=1
-            if counter>50: diff_vec = np.zeros(n_pulses)
-        mean_diff.value = int(np.mean(diff_vec))
-        # print(f'Thread\tdiff: {diff}')
-        # print(f'Thread\tdiff_vec: {diff_vec}')
-        # print(f'Thread\tmean_diff: {mean_diff.value}')
-        time.sleep(0.001)
-
-async def send_rpm():
-    global mean_diff
-    # print(f'async\tmean_diff {mean_diff.value}')
-    if mean_diff.value==0:
-        rpm=0
-    else:
-        rpm = 60/((mean_diff.value)*20*(10**(-9)))
-    await motor_rpm.write_value(rpm)
-    print('rpm\t',rpm)
 
 
-    
-real_motor = Motor(26, 20)
-global MOTOR_STARTED, NEW_MOTOR_INP
-global STOP_FLAG, START_FLAG
-global dc_motor_inp, dc_motor_rpm, motor_speed_is
-START_FLAG, STOP_FLAG, NEW_MOTOR_INP = False, False, False
+#*********************** Server Methods *******************************#
+START_FLAG, STOP_FLAG, NEW_MOTOR_INP = False, False, False # inititate flags
 # add start, stop methods for motor
 # @uamethod: Method decorator to automatically
 # convert arguments and output to and from variant
@@ -128,19 +84,67 @@ async def stop_motor(parent):
         STOP_FLAG = True
         print("Motor stopped")
 
+#*********************** Other functions *******************************#
+global dc_motor_inp, dc_motor_rpm, motor_speed_is
+
 async def set_speed():
-    global START_FLAG, STOP_FLAG, NEW_MOTOR_INP, real_motor, motor_speed_is
+    global START_FLAG, STOP_FLAG, NEW_MOTOR_INP, motor_speed_is
+    motor = Motor(26, 20)
     if START_FLAG:
         if NEW_MOTOR_INP:
-            real_motor.forward(motor_speed_is)
+            motor.forward(motor_speed_is)
             NEW_MOTOR_INP = False
             START_FLAG = False
             print(f'motor set to {motor_speed_is}')
     if STOP_FLAG:
-        real_motor.forward(0)
+        motor.forward(0)
         NEW_MOTOR_INP = True
         STOP_FLAG = False
         print(f'motor set to 0')
+
+global mean_diff
+mean_diff = Value('i', 0)
+def clalc_time_diff():
+    """
+        Calculate Time Difference between pulses
+    """
+    print('Thread started')
+    counter = 0
+    n_pulses = 5
+    diff = 0
+    diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
+    while True:
+        global EDGE_DETECTED, OLD_EDGE,\
+                NEW_EDGE, mean_diff
+
+        if EDGE_DETECTED.value:
+            EDGE_DETECTED.value = False
+            counter = 0
+
+            if NEW_EDGE.value and OLD_EDGE.value:
+                # update mean difference between pulses
+                diff = NEW_EDGE.value-OLD_EDGE.value
+                if diff >0: # ignore random wrong values
+                    diff_vec[1::] = diff_vec[:-1:1]
+                    diff_vec[0] = diff
+        else:
+            counter +=1
+            if counter>50: diff_vec = np.zeros(n_pulses)
+        mean_diff.value = int(np.mean(diff_vec))
+        # print(f'Thread\tdiff: {diff}')
+        # print(f'Thread\tdiff_vec: {diff_vec}')
+        # print(f'Thread\tmean_diff: {mean_diff.value}')
+        time.sleep(0.001)
+
+async def set_rpm():
+    global mean_diff, dc_motor_rpm
+    # print(f'async\tmean_diff {mean_diff.value}')
+    if mean_diff.value==0:
+        rpm=0
+    else:
+        rpm = 60/((mean_diff.value)*20*(10**(-9)))
+    await dc_motor_rpm.write_value(rpm)
+    print('rpm\t',rpm)
 
 async def main(host='localhost'):
     # init server, set endpoint
@@ -179,14 +183,20 @@ async def main(host='localhost'):
     # start
     async with server:
         while True:
-            await asyncio.gather(set_speed(), send_rpm())
-            await asyncio.sleep(.05)
+            await asyncio.gather(set_speed(), set_rpm())
+            await asyncio.sleep(.50)
 
 if __name__ == "__main__":
     p = Process(target=clalc_time_diff)
     p.start()
+
     if len(sys.argv)>1:
         host = sys.argv[1]
     else:
         host='localhost'
-    asyncio.run(main(host))
+    try:
+        asyncio.run(main(host))
+    except Exception as e:
+        print(e)
+        p.kill()
+        p.join()
