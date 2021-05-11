@@ -31,7 +31,7 @@ puls = Button(14)
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger('server_motor')
 _logger.debug('_logger.debug')
-logging-logging.debug('logging.debug')
+logging.debug('logging.debug')
 global DEBUG
 
 #*********************** Callback functions *******************************#
