@@ -30,8 +30,8 @@ puls = Button(14)
 
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger('server_motor')
-_logger.debug('_logger.debug')
-logging.debug('logging.debug')
+_logger.info('_logger.debug')
+logging.info('logging.debug')
 global DEBUG
 DEBUG = False
 
