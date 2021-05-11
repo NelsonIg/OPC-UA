@@ -33,6 +33,7 @@ _logger = logging.getLogger('server_motor')
 _logger.debug('_logger.debug')
 logging.debug('logging.debug')
 global DEBUG
+DEBUG = False
 
 #*********************** Callback functions *******************************#
 global MOTOR_STARTED, NEW_MOTOR_INP
@@ -198,7 +199,7 @@ if __name__ == "__main__":
     # thread for computing time difference of rising edges
     p = Process(target=clalc_time_diff)
     p.start()
-
+    print(DEBUG)
     if len(sys.argv)>1:
         host = sys.argv[1]
         if "-d" in sys.argv or "--debug" in sys.argv:
