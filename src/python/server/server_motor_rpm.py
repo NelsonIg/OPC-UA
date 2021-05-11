@@ -150,7 +150,7 @@ async def set_rpm():
     else:
         rpm = 60/((mean_diff.value)*20*(10**(-9)))
     await dc_motor_rpm.write_value(rpm)
-    if DEBUG: _logger.debug('rpm\t',rpm)
+    if DEBUG: _logger.debug(f'rpm\t{rpm}')
 
 async def main(host='localhost'):
     # init server, set endpoint
