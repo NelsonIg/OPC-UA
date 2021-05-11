@@ -29,7 +29,7 @@ import numpy as np
 puls = Button(14)
 
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
-_logger = logging.getLogger() #'asyncua')
+_logger = logging.getLogger('asyncua')
 
 #*********************** Callback functions *******************************#
 global MOTOR_STARTED, NEW_MOTOR_INP
@@ -42,7 +42,7 @@ class SubscriptionHandler (SubHandler):
 
     def datachange_notification(self, node: Node, val, data):
         global STOP_FLAG, START_FLAG, NEW_MOTOR_INP, motor_speed_is
-        print(f'datachange_notification node: {node} value: {val}')
+        if DEBUG: _logger.debug(f'datachange_notification node: {node} value: {val}')
         motor_speed_is = val
         if val > 0:
             START_FLAG=True
@@ -74,7 +74,7 @@ async def start_motor(parent):
     global  START_FLAG
     if not START_FLAG:
         START_FLAG = True
-        print("Motor started.")
+        if DEBUG: _logger.debug("Motor started.")
 
 
 @uamethod
@@ -82,7 +82,7 @@ async def stop_motor(parent):
     global STOP_FLAG
     if not STOP_FLAG:
         STOP_FLAG = True
-        print("Motor stopped")
+        if DEBUG: _logger.debug("Motor stopped")
 
 #*********************** Other functions *******************************#
 global dc_motor_inp, dc_motor_rpm, motor_speed_is
@@ -96,12 +96,12 @@ async def set_speed():
             motor.forward(motor_speed_is)
             NEW_MOTOR_INP = False
             START_FLAG = False
-            print(f'motor set to {motor_speed_is}')
+            if DEBUG: _logger.debug(f'motor set to {motor_speed_is}')
     if STOP_FLAG:
         motor.forward(0)
         NEW_MOTOR_INP = True
         STOP_FLAG = False
-        print(f'motor set to 0')
+        if DEBUG: _logger.debug(f'motor set to 0')
 
 global mean_diff
 mean_diff = Value('i', 0)
@@ -147,7 +147,7 @@ async def set_rpm():
     else:
         rpm = 60/((mean_diff.value)*20*(10**(-9)))
     await dc_motor_rpm.write_value(rpm)
-    print('rpm\t',rpm)
+    if DEBUG: _logger.debug('rpm\t',rpm)
 
 async def main(host='localhost'):
     # init server, set endpoint
@@ -198,6 +198,11 @@ if __name__ == "__main__":
 
     if len(sys.argv)>1:
         host = sys.argv[1]
+        global DEBUG
+        if "-d" in sys.argv or "--debug" in sys.argv:
+            DEBUG = True
+        else:
+            DEBUG = False
     else:
         host='localhost'
     try:
