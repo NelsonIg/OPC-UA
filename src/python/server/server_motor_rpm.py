@@ -30,6 +30,7 @@ puls = Button(14)
 
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger('asyncua')
+global DEBUG
 
 #*********************** Callback functions *******************************#
 global MOTOR_STARTED, NEW_MOTOR_INP
@@ -198,7 +199,6 @@ if __name__ == "__main__":
 
     if len(sys.argv)>1:
         host = sys.argv[1]
-        global DEBUG
         if "-d" in sys.argv or "--debug" in sys.argv:
             DEBUG = True
         else:
