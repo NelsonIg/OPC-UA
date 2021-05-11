@@ -29,7 +29,7 @@ import numpy as np
 puls = Button(14)
 
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
-_logger = logging.getLogger('asyncua')
+_logger = logging.getLogger('server_motor')
 global DEBUG
 
 #*********************** Callback functions *******************************#
