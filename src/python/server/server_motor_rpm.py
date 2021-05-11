@@ -203,6 +203,7 @@ if __name__ == "__main__":
         host = sys.argv[1]
         if "-d" in sys.argv or "--debug" in sys.argv:
             DEBUG = True
+            print(DEBUG)
         else:
             DEBUG = False
     else:
