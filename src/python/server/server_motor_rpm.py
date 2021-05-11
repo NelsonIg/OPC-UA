@@ -30,9 +30,6 @@ puls = Button(14)
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
 _logger = logging.getLogger(__name__)
-_logger.debug('_logger.debug')
-global DEBUG
-DEBUG = False
 
 #*********************** Callback functions *******************************#
 global MOTOR_STARTED, NEW_MOTOR_INP
@@ -77,7 +74,7 @@ async def start_motor(parent):
     global  START_FLAG
     if not START_FLAG:
         START_FLAG = True
-        if DEBUG: _logger.debug("Motor started.")
+        if DEBUG: _logger.debug("start_motor Method called")
 
 
 @uamethod
@@ -85,7 +82,7 @@ async def stop_motor(parent):
     global STOP_FLAG
     if not STOP_FLAG:
         STOP_FLAG = True
-        if DEBUG: _logger.debug("Motor stopped")
+        if DEBUG: _logger.debug("stop_motor Method called")
 
 #*********************** Other functions *******************************#
 global dc_motor_inp, dc_motor_rpm, motor_speed_is
@@ -198,12 +195,11 @@ if __name__ == "__main__":
     # thread for computing time difference of rising edges
     p = Process(target=clalc_time_diff)
     p.start()
-    print(DEBUG)
     if len(sys.argv)>1:
         host = sys.argv[1]
+        global DEBUG
         if "-d" in sys.argv or "--debug" in sys.argv:
             DEBUG = True
-            print(DEBUG)
         else:
             DEBUG = False
     else:
