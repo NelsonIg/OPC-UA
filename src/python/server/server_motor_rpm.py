@@ -29,7 +29,7 @@ import numpy as np
 puls = Button(14)
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
-_logger = logging.getLogger('server_motor')
+_logger = logging.getLogger(__name__)
 _logger.debug('_logger.debug')
 global DEBUG
 DEBUG = False
