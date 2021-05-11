@@ -20,8 +20,21 @@ if not os.path.exists(data_path):
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger(__name__) #'asyncua')
 
+async def time_method(var, idx, cycles, delay=0):
+    """
+        time the daly of method calls and return timing_vec of len(cycles)
+    """
+    timing_vec = np.zeros(cycles)
+    for i in range(cycles):
+        t1 = time.perf_counter_ns()
+        await var.call_method(f"{idx}:stop_motor")
+        t2 = time.perf_counter_ns()
+        timing_vec[i] = t2-t1
+        if delay >0:
+            await asyncio.sleep(delay)
+    return timing_vec
 
-async def time_write(var, cycles):
+async def time_write(var, cycles, delay=0):
     """
         time the delay of write operations and return timing_vec with len(cycles)
     """
@@ -31,6 +44,8 @@ async def time_write(var, cycles):
         await var.write_value(0.0)
         t2 = time.perf_counter_ns()
         timing_vec[i] = t2-t1
+        if delay >0:
+            await asyncio.sleep(delay)
     return timing_vec
 
 
@@ -52,11 +67,27 @@ async def main(host='localhost'):
 
                 # time write operations
                 _logger.info('time write operations')
-                write_vec = await time_write(motor_rpm, 10000)
-                df = pd.DataFrame({"write_value":write_vec})
-                _logger.info(f'TIMING for write value:\tmean {df["write_value"].mean()}\tmeadian {df["write_value"].median()}')
+                cycles=10**3
+                delay = 0
+
+                _logger.info('start timing of write operations')
+                t1 = time.perf_counter()
+                write_vec = await time_write(motor_rpm, cycles, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of write operations: {t2-t1}s')
+                _logger.info('start timing of method calls')
+                t1 = time.perf_counter()
+                method_vec = await time_method(motor_obj, idx, cycles, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of method calls: {t2-t1}s')
+
+                df = pd.DataFrame({"write_value":write_vec, "method_call": method_vec})
+                _logger.info(f'TIMING for write_value:\tmean {df["write_value"].mean()}ns\tmeadian {df["write_value"].median()}ns')
+                _logger.info(f'TIMING for method_call:\tmean {df["method_call"].mean()}ns\tmeadian {df["method_call"].median()}ns')
+                # store data
                 now = datetime.datetime.now()
-                df.to_csv(f'{data_path}{now.year}_{now.month}_{now.day}_{now.minute}_{now.second}')
+                filename = f'{data_path}timed_cylces_{cycles}_delay_{delay}.csv'
+                df.to_csv(filename)
 
         except asyncio.exceptions.TimeoutError:
             _logger.warning(f'Connection failed. Connecting again to {server_endpoint}')
