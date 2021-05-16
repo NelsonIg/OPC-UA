@@ -45,13 +45,13 @@ class SubscriptionHandler (SubHandler):
         sub_time_new = time.perf_counter_ns()
         DATA_CHANGE_RECV = True
 
-async def time_subscription(client, var, cycles=100, period=10, quesize=1):
+async def time_subscription(client, var, cycles=100, period=10, queuesize=1):
     global DATA_CHANGE_RECV, sub_time_old, sub_time_old
     # create subscription
     sub_handler = SubscriptionHandler()
     subscription = await client.create_subscription(period=period, handler=sub_handler)
     # subscribe to data change, only current data queuesize=1
-    await subscription.subscribe_data_change(nodes=var, queuesize=quesize)
+    await subscription.subscribe_data_change(nodes=var, queuesize=queuesize)
     time_sleep = (period/100)*10**-3 # sleep 1% of period [s]
     time_vec = np.zeros(cycles)
     for i in range(cycles+1):
@@ -62,8 +62,12 @@ async def time_subscription(client, var, cycles=100, period=10, quesize=1):
         if sub_time_old and sub_time_new:
             # only store vals after at least two datachange_notifications
             time_vec[i-1] = sub_time_new-sub_time_old
-
-    return time_vec
+    subscription.delete()
+    # save dataframe to csv
+    df = pd.DataFrame({'datachange_notifications': time_vec, \
+                        'period': np.ones(time_vec.shape)*period, \
+                        'queuesize': np.ones(time_vec.shape)*queuesize})
+    df.to_csv(data_path+f'time_subscription_cycles_{cycles}_period_{period}_queuesize_{queuesize}.csv')
 
         
 
@@ -81,7 +85,8 @@ async def time_method(var, idx, cycles, delay=0):
         timing_vec[i] = t2-t1
         if delay >0:
             await asyncio.sleep(delay)
-    return timing_vec
+    df = pd.DataFrame({'method_call': timing_vec, 'delay': np.ones(timing_vec.shape)*delay})
+    df.to_csv(data_path+f'time_method_cycles_{cycles}_delay_{delay}.csv')
 
 async def time_write(var, cycles, delay=0):
     """
@@ -95,7 +100,8 @@ async def time_write(var, cycles, delay=0):
         timing_vec[i] = t2-t1
         if delay >0:
             await asyncio.sleep(delay)
-    return timing_vec
+    df = pd.DataFrame({'write_value': timing_vec, 'delay': np.ones(timing_vec.shape)*delay})
+    df.to_csv(data_path+f'time_write_value_cycles_{cycles}_delay_{delay}.csv')
 
 
 async def main(host='localhost'):
@@ -116,35 +122,26 @@ async def main(host='localhost'):
 
                 # time write operations
                 _logger.info('time write operations')
-                cycles=20**4
+                cycles=10**4
                 delay = 0
 
                 _logger.info('start timing of write operations')
                 t1 = time.perf_counter()
-                write_vec = await time_write(motor_rpm, cycles, delay)
+                await time_write(motor_rpm, cycles, delay)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
                 _logger.info('start timing of method calls')
                 t1 = time.perf_counter()
-                method_vec = await time_method(motor_obj, idx, cycles, delay)
+                await time_method(motor_obj, idx, cycles, delay)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
-                datachange_vec = await time_subscription(client, motor_rpm, cycles)
+                await time_subscription(client, motor_rpm, cycles)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of datachange_notifications: {t2-t1}s')
-
-                df = pd.DataFrame({"write_value":write_vec, "method_call": method_vec, "subscription": datachange_vec})
-                _logger.info(f'TIMING for write_value:\tmean {df["write_value"].mean()}ns\tmeadian {df["write_value"].median()}ns')
-                _logger.info(f'TIMING for method_call:\tmean {df["method_call"].mean()}ns\tmeadian {df["method_call"].median()}ns')
-                _logger.info(f'TIMING for method_call:\tmean {df["subscription"].mean()}ns\tmeadian {df["subscription"].median()}ns')
-                # store data
-                now = datetime.datetime.now()
-                filename = f'{data_path}timed_cylces_{cycles}_delay_{delay}.csv'
-                df.to_csv(filename)
 
         except asyncio.exceptions.TimeoutError:
             _logger.warning(f'Connection failed. Connecting again to {server_endpoint}')
