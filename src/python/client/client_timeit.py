@@ -122,7 +122,7 @@ async def main(host='localhost'):
 
                 # time write operations
                 _logger.info('time write operations')
-                cycles=10**4
+                cycles=10**1
                 delay = 0
 
                 _logger.info('start timing of write operations')
