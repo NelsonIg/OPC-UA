@@ -190,6 +190,8 @@ async def main(host='localhost'):
             await asyncio.sleep(.10)
 
 if __name__ == "__main__":
+    global DEBUG
+    DEBUG = False
     # callback for detecting rising edges
     puls.when_pressed = callback_high_edge # rising edge
     # thread for computing time difference of rising edges
@@ -197,7 +199,6 @@ if __name__ == "__main__":
     p.start()
     if len(sys.argv)>1:
         host = sys.argv[1]
-        global DEBUG
         if "-d" in sys.argv or "--debug" in sys.argv:
             DEBUG = True
         else:

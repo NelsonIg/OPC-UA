@@ -45,7 +45,7 @@ class SubscriptionHandler (SubHandler):
         sub_time_new = time.perf_counter_ns()
         DATA_CHANGE_RECV = True
 
-async def time_subscription(client, var, cycles=100, period=10, queuesize=1):
+async def time_subscription(client, var, cycles, case, period=10, queuesize=1):
     global DATA_CHANGE_RECV, sub_time_old, sub_time_old
     # create subscription
     sub_handler = SubscriptionHandler()
@@ -67,13 +67,13 @@ async def time_subscription(client, var, cycles=100, period=10, queuesize=1):
     df = pd.DataFrame({'datachange_notifications': time_vec, \
                         'period': np.ones(time_vec.shape)*period, \
                         'queuesize': np.ones(time_vec.shape)*queuesize})
-    df.to_csv(data_path+f'time_subscription_cycles_{cycles}_period_{period}_queuesize_{queuesize}.csv')
+    df.to_csv(data_path+f'{case}_subscription_cycles_{cycles}_period_{period}_queuesize_{queuesize}.csv')
 
         
 
 
 
-async def time_method(var, idx, cycles, delay=0):
+async def time_method(var, idx, cycles, case, delay=0):
     """
         time the daly of method calls and return timing_vec of len(cycles)
     """
@@ -86,9 +86,9 @@ async def time_method(var, idx, cycles, delay=0):
         if delay >0:
             await asyncio.sleep(delay)
     df = pd.DataFrame({'method_call': timing_vec, 'delay': np.ones(timing_vec.shape)*delay})
-    df.to_csv(data_path+f'time_method_cycles_{cycles}_delay_{delay}.csv')
+    df.to_csv(data_path+f'{case}_method_cycles_{cycles}_delay_{delay}.csv')
 
-async def time_write(var, cycles, delay=0):
+async def time_write(var, cycles, case, delay=0):
     """
         time the delay of write operations and return timing_vec with len(cycles)
     """
@@ -101,7 +101,7 @@ async def time_write(var, cycles, delay=0):
         if delay >0:
             await asyncio.sleep(delay)
     df = pd.DataFrame({'write_value': timing_vec, 'delay': np.ones(timing_vec.shape)*delay})
-    df.to_csv(data_path+f'time_write_value_cycles_{cycles}_delay_{delay}.csv')
+    df.to_csv(data_path+f'{case}_write_value_cycles_{cycles}_delay_{delay}.csv')
 
 
 async def main(host='localhost'):
@@ -124,22 +124,23 @@ async def main(host='localhost'):
                 _logger.info('time write operations')
                 cycles=10**1
                 delay = 0
+                case='ethernet'
 
                 _logger.info('start timing of write operations')
                 t1 = time.perf_counter()
-                await time_write(motor_rpm, cycles, delay)
+                await time_write(motor_rpm, cycles, case, delay)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
                 _logger.info('start timing of method calls')
                 t1 = time.perf_counter()
-                await time_method(motor_obj, idx, cycles, delay)
+                await time_method(motor_obj, idx, cycles, case, delay)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
-                await time_subscription(client, motor_rpm, cycles)
+                await time_subscription(client, motor_rpm, case, cycles)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of datachange_notifications: {t2-t1}s')
 
