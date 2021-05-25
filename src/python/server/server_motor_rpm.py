@@ -204,7 +204,7 @@ if __name__ == "__main__":
         else:
             DEBUG = False
     else:
-        host='localhost'
+        host='0.0.0.0'
     try:
         asyncio.run(main(host))
     except Exception as e:
