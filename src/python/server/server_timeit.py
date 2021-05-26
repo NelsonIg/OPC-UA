@@ -74,3 +74,7 @@ if __name__ == '__main__':
         asyncio.run(main(host))
     else:
         asyncio.run(main())
+
+
+# sudo ifconfig wlan0 down - disable wlan0
+# sudo ifconfig eth0 up - enable eth0
