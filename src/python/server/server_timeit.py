@@ -3,7 +3,7 @@ from asyncua import ua, Server, uamethod
 from asyncua.common.subscription import SubHandler
 from asyncua import Node, ua
 
-import logging
+import logging, sys
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
 _logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ async def stop_motor(parent):
     pass
 
 
-async def main(host='localhost'):
+async def main(host='0.0.0.0'):
     # init server, set endpoint
     server = Server()
     await server.init()
@@ -55,3 +55,22 @@ async def main(host='localhost'):
     async with server:
         while True:
             await asyncio.sleep(1)
+
+if __name__ == '__main__':
+
+    if len(sys.argv)>1:
+        # arguments passed to script
+        # accepted options: -h/--host
+        # syntax <option> <host>
+        if '-h' in sys.argv:
+            idx_option = sys.argv.index('-h')
+        elif '--host' in sys.argv:
+            idx_option = sys.argv.index('--host')
+        else:
+            raise ValueError('only -h and --host accepted as options\n \
+                                <option> <host>')
+        # set host
+        host = sys.argv[idx_option+1]
+        asyncio.run(main(host))
+    else:
+        asyncio.run(main())
