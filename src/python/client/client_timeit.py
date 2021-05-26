@@ -52,7 +52,7 @@ async def time_subscription(client, var, cycles, case, period=10, queuesize=1):
     subscription = await client.create_subscription(period=period, handler=sub_handler)
     # subscribe to data change, only current data queuesize=1
     await subscription.subscribe_data_change(nodes=var, queuesize=queuesize)
-    time_sleep = (period/100)*10**-3 # sleep 1% of period [s]
+    time_sleep = ((period/100)*10**-3) * 10 # sleep 10% of period [s]
     time_vec = np.zeros(cycles)
     for i in range(cycles+1):
         DATA_CHANGE_RECV = False
@@ -105,8 +105,7 @@ async def time_write(var, cycles, case, delay=0):
 
 
 async def main(host='localhost'):
-    
-    server_endpoint = f"opc.tcp://{host}:4840/server_example/"
+    server_endpoint = f"opc.tcp://{host}:4840"
     client = Client(url=server_endpoint)
     not_connected = True
     while not_connected:
@@ -122,25 +121,25 @@ async def main(host='localhost'):
 
                 # time write operations
                 _logger.info('time write operations')
-                cycles=10**1
+                cycles=10**4
                 delay = 0
-                case='ethernet'
+                case='ether(S)-ether(C)'
 
-                _logger.info('start timing of write operations')
-                t1 = time.perf_counter()
-                await time_write(motor_rpm, cycles, case, delay)
-                t2 = time.perf_counter()
-                _logger.info(f'finished timing of write operations: {t2-t1}s')
+                # _logger.info('start timing of write operations')
+                # t1 = time.perf_counter()
+                # await time_write(motor_rpm, cycles, case, delay)
+                # t2 = time.perf_counter()
+                # _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
-                _logger.info('start timing of method calls')
-                t1 = time.perf_counter()
-                await time_method(motor_obj, idx, cycles, case, delay)
-                t2 = time.perf_counter()
-                _logger.info(f'finished timing of method calls: {t2-t1}s')
+                # _logger.info('start timing of method calls')
+                # t1 = time.perf_counter()
+                # await time_method(motor_obj, idx, cycles, case, delay)
+                # t2 = time.perf_counter()
+                # _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
-                await time_subscription(client, motor_rpm, case, cycles)
+                await time_subscription(client, motor_rpm, cycles, case, period=10)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of datachange_notifications: {t2-t1}s')
 
@@ -155,4 +154,4 @@ if __name__ == "__main__":
     else:
         host='192.168.0.183'
     asyncio.run(main(host))
-    
+ 
