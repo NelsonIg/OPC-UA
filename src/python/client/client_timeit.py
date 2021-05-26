@@ -50,14 +50,16 @@ async def time_subscription(client, var, cycles, case, period=10, queuesize=1):
     # create subscription
     sub_handler = SubscriptionHandler()
     subscription = await client.create_subscription(period=period, handler=sub_handler)
-    # subscribe to data change, only current data queuesize=1
+    # subscribe to data change; only current data --> queuesize=1
     await subscription.subscribe_data_change(nodes=var, queuesize=queuesize)
-    time_sleep = ((period/100)*10**-3) * 10 # sleep 10% of period [s]
+    # sleep 5% of period for polling of flag [s]
+    time_sleep = ((period/100)*10**-3) * 5 
     time_vec = np.zeros(cycles)
     for i in range(cycles+1):
         DATA_CHANGE_RECV = False
         await var.write_value(rd.randint(0,1000))
-        while not DATA_CHANGE_RECV:
+        # wait till datachange_notification received
+        while not DATA_CHANGE_RECV: 
             await asyncio.sleep(time_sleep)
         if sub_time_old and sub_time_new:
             # only store vals after at least two datachange_notifications
@@ -90,12 +92,13 @@ async def time_method(var, idx, cycles, case, delay=0):
 
 async def time_write(var, cycles, case, delay=0):
     """
-        time the delay of write operations and return timing_vec with len(cycles)
+        time the delay of write operations and safe as csv-file
     """
     timing_vec = np.zeros(cycles)
     for i in range(cycles):
+        random_value = round(rd.random(),2) # random float [0.00 - 1.00] 
         t1 = time.perf_counter_ns()
-        await var.write_value(0.0)
+        await var.write_value(random_value)
         t2 = time.perf_counter_ns()
         timing_vec[i] = t2-t1
         if delay >0:
@@ -104,7 +107,7 @@ async def time_write(var, cycles, case, delay=0):
     df.to_csv(data_path+f'{case}_write_value_cycles_{cycles}_delay_{delay}.csv')
 
 
-async def main(host='localhost'):
+async def main(host='0.0.0.0'):
     server_endpoint = f"opc.tcp://{host}:4840"
     client = Client(url=server_endpoint)
     not_connected = True
@@ -119,23 +122,21 @@ async def main(host='localhost'):
                 motor_rpm = await client.nodes.objects.get_child(path=[f"{idx}:Motor", f"{idx}:RPM"])
                 motor_inp = await client.nodes.objects.get_child(path=[f"{idx}:Motor", f"{idx}:Input"])
 
-                # time write operations
-                _logger.info('time write operations')
-                cycles=10**4
+                cycles=10**3
                 delay = 0
-                case='ether(S)-ether(C)'
+                case='wlan(S)-wlan(C)'
 
-                # _logger.info('start timing of write operations')
-                # t1 = time.perf_counter()
-                # await time_write(motor_rpm, cycles, case, delay)
-                # t2 = time.perf_counter()
-                # _logger.info(f'finished timing of write operations: {t2-t1}s')
+                _logger.info('start timing of write operations')
+                t1 = time.perf_counter()
+                await time_write(motor_rpm, cycles, case, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
-                # _logger.info('start timing of method calls')
-                # t1 = time.perf_counter()
-                # await time_method(motor_obj, idx, cycles, case, delay)
-                # t2 = time.perf_counter()
-                # _logger.info(f'finished timing of method calls: {t2-t1}s')
+                _logger.info('start timing of method calls')
+                t1 = time.perf_counter()
+                await time_method(motor_obj, idx, cycles, case, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
@@ -150,8 +151,19 @@ async def main(host='localhost'):
 
 if __name__ == "__main__":
     if len(sys.argv)>1:
-        host = sys.argv[1]
+        # arguments passed to script
+        # accepted options: -h/--host
+        # syntax <option> <host>
+        if '-h' in sys.argv:
+            idx_option = sys.argv.index('-h')
+        elif '--host' in sys.argv:
+            idx_option = sys.argv.index('--host')
+        else:
+            raise ValueError('only -h and --host accepted as options\n \
+                                <option> <host>')
+        # set host
+        host = sys.argv[idx_option+1]
+        asyncio.run(main(host))
     else:
-        host='192.168.0.183'
-    asyncio.run(main(host))
+        asyncio.run(main())
  
