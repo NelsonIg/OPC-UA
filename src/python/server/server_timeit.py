@@ -76,11 +76,15 @@ async def main(host='0.0.0.0'):
     # Methods for notification test
     inarg_period = ua.Argument()
     inarg_period.Name = 'period'
+    inarg_period.ValueRank = -1
+    inarg_period.ArrayDimensions = []
     inarg_period.DataType = ua.NodeId(ua.ObjectIds.Float)
     inarg_period.Description = ua.LocalizedText("period of datachange in sec.")
 
     inarg_var_name = ua.Argument()
     inarg_var_name.Name = 'variable_name'
+    inarg_var_name.ValueRank = -1
+    inarg_var_name.ArrayDimensions = []
     inarg_var_name.DataType = ua.NodeId(ua.ObjectIds.String)
     inarg_var_name.Description = ua.LocalizedText("name of variable to be changed")
 
