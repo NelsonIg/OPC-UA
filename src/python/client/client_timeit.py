@@ -27,8 +27,9 @@ logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger(__name__) #'asyncua')
 
 
-global DATA_CHANGE_RECV, sub_time_old, sub_time_new
-DATA_CHANGE_RECV = False
+global DATA_CHANGE_RECV
+global timestamp_list
+DATA_CHANGE_RECV, timestamp_list = False, []
 sub_time_old, sub_time_new = None, None
 class SubscriptionHandler (SubHandler):
     """
@@ -40,36 +41,41 @@ class SubscriptionHandler (SubHandler):
         Callback for asyncua Subscription.
         This method will be called when the Client received a data change message from the Server.
         """
-        global DATA_CHANGE_RECV, sub_time_old, sub_time_new
-        sub_time_old = sub_time_new
-        sub_time_new = time.perf_counter_ns()
+        global DATA_CHANGE_RECV, timestamp_list
+        timestamp = time.perf_counter_ns()
+        timestamp_list.append(timestamp)
         DATA_CHANGE_RECV = True
 
-async def time_subscription(client, var, cycles, case, period=10, queuesize=1):
-    global DATA_CHANGE_RECV, sub_time_old, sub_time_old
+async def time_subscription(client, obj, idx, var, var_name, case, period=10, change_int=1, duration=100, queuesize=1):
+    """
+    period: desired period of notification messages [ms]
+    change_int: interval of datachange of variable value [ms]
+    duration: duration of test [sec]
+    """
+    global DATA_CHANGE_RECV, timestamp_list
+    change_int_sec = change_int*10**-3
     # create subscription
     sub_handler = SubscriptionHandler()
     subscription = await client.create_subscription(period=period, handler=sub_handler)
     # subscribe to data change; only current data --> queuesize=1
     await subscription.subscribe_data_change(nodes=var, queuesize=queuesize)
-    # sleep 5% of period for polling of flag [s]
-    time_sleep = ((period/100)*10**-3) * 5 
-    time_vec = np.zeros(cycles)
-    for i in range(cycles+1):
-        DATA_CHANGE_RECV = False
-        await var.write_value(rd.randint(0,1000))
-        # wait till datachange_notification received
-        while not DATA_CHANGE_RECV: 
-            await asyncio.sleep(time_sleep)
-        if sub_time_old and sub_time_new:
-            # only store vals after at least two datachange_notifications
-            time_vec[i-1] = sub_time_new-sub_time_old
+    # start notification test
+    await obj.call_method(f"{idx}:start_notification_test", \
+                            change_int_sec, var_name)
+    await asyncio.sleep(duration)
+    await obj.call_method(f"{idx}:stop_notification_test")
     subscription.delete()
+    # compute timedifference between notification messages
+    time_vec = []
+    for i in range(len(timestamp_list)-1):
+        time_vec.append(timestamp_list[i+1]-timestamp_list[i])
+    time_vec = np.array(time_vec)[1::]
     # save dataframe to csv
     df = pd.DataFrame({'datachange_notifications': time_vec, \
                         'period': np.ones(time_vec.shape)*period, \
-                        'queuesize': np.ones(time_vec.shape)*queuesize})
-    df.to_csv(data_path+f'{case}_subscription_cycles_{cycles}_period_{period}_queuesize_{queuesize}.csv')
+                        'queuesize': np.ones(time_vec.shape)*queuesize, \
+                        'change_int':  np.ones(time_vec.shape)*change_int})
+    df.to_csv(data_path+f'{case}_subscription_duration_{duration}_period_{period}_changeInt_{change_int}_queuesize_{queuesize}.csv')
 
         
 
@@ -124,23 +130,26 @@ async def main(host='0.0.0.0'):
 
                 cycles=10**3
                 delay = 0
-                case='wlan(S)-wlan(C)'
+                case='test'
 
-                _logger.info('start timing of write operations')
-                t1 = time.perf_counter()
-                await time_write(motor_rpm, cycles, case, delay)
-                t2 = time.perf_counter()
-                _logger.info(f'finished timing of write operations: {t2-t1}s')
+                # _logger.info('start timing of write operations')
+                # t1 = time.perf_counter()
+                # await time_write(motor_rpm, cycles, case, delay)
+                # t2 = time.perf_counter()
+                # _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
-                _logger.info('start timing of method calls')
-                t1 = time.perf_counter()
-                await time_method(motor_obj, idx, cycles, case, delay)
-                t2 = time.perf_counter()
-                _logger.info(f'finished timing of method calls: {t2-t1}s')
+                # _logger.info('start timing of method calls')
+                # t1 = time.perf_counter()
+                # await time_method(motor_obj, idx, cycles, case, delay)
+                # t2 = time.perf_counter()
+                # _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
+
+                # client, obj, idx, var, var_name, case, period=10, change_int=1, duration=100, queuesize=1)
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
-                await time_subscription(client, motor_rpm, cycles, case, period=10)
+                await time_subscription(client, obj=motor_obj, idx=idx, var=motor_rpm, \
+                            var_name='RPM', case=case, period=10, change_int=1, duration=100)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of datachange_notifications: {t2-t1}s')
 
