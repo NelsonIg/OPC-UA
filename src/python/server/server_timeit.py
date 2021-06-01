@@ -88,8 +88,8 @@ async def main(host='0.0.0.0'):
     inarg_var_name.DataType = ua.NodeId(ua.ObjectIds.String)
     inarg_var_name.Description = ua.LocalizedText("name of variable to be changed")
 
-    await dc_motor.add_method(idx, "start_notification_test", [inarg_period, inarg_var_name], [])
-    await dc_motor.add_method(idx, "stop_notification_test", [], [])
+    await dc_motor.add_method(idx, "start_notification_test", start_notification_test, [inarg_period, inarg_var_name], [])
+    await dc_motor.add_method(idx, "stop_notification_test", stop_notification_test, [], [])
     # dictionary for notification test
     var_dict = {'Input': dc_motor_inp, 'RPM': dc_motor_rpm}
 
