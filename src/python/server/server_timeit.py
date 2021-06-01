@@ -4,6 +4,7 @@ from asyncua.common.subscription import SubHandler
 from asyncua import Node, ua
 
 import logging, sys
+import random as rd
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
 _logger = logging.getLogger(__name__)
@@ -20,6 +21,27 @@ async def start_motor(parent):
 @uamethod
 async def stop_motor(parent):
     pass
+
+NOTIFICATION_TEST = False
+notification_test_period = None
+notification_test_variable = None
+@uamethod
+async def start_notification_test(parent, period, var_name='RPM'):
+    """
+        var_name: 'RPM' or 'Input'
+    """
+    global NOTIFICATION_TEST, notification_test_period, \
+        notification_test_variable
+    NOTIFICATION_TEST = True
+    notification_test_period = period
+    notification_test_variable = var_name
+
+
+@uamethod
+async def stop_notification_test(parent):
+    global NOTIFICATION_TEST, notification_test_period
+    NOTIFICATION_TEST = False
+    notification_test_period = None
 
 
 async def main(host='0.0.0.0'):
@@ -51,10 +73,31 @@ async def main(host='0.0.0.0'):
     await dc_motor.add_method(idx, "start_motor", start_motor, [], [])
     await dc_motor.add_method(idx, "stop_motor", stop_motor, [], [])
 
+    # Methods for notification test
+    inarg_period = ua.Argument()
+    inarg_period.Name = 'period'
+    inarg_period.DataType = ua.NodeId(ua.ObjectIds.Float)
+    inarg_period.Description = ua.LocalizedText("period of datachange in sec.")
+
+    inarg_var_name = ua.Argument()
+    inarg_var_name.Name = 'variable_name'
+    inarg_var_name.DataType = ua.NodeId(ua.ObjectIds.String)
+    inarg_var_name.Description = ua.LocalizedText("name of variable to be changed")
+
+    await dc_motor.add_method(idx, "start_notification_test", [inarg_period, inarg_var_name], [])
+    await dc_motor.add_method(idx, "stop_notification_test", [], [])
+    # dictionary for notification test
+    var_dict = {'Input': dc_motor_inp, 'RPM': dc_motor_rpm}
+
+
     # start
     async with server:
         while True:
-            await asyncio.sleep(1)
+            while NOTIFICATION_TEST:
+                num = round(rd.random(), 2)
+                var_dict[notification_test_variable].write_value(num)
+                await asyncio.sleep(notification_test_period)
+            await asyncio.sleep(0.1)
 
 if __name__ == '__main__':
 
