@@ -98,8 +98,7 @@ async def main(host='0.0.0.0'):
     async with server:
         while True:
             while NOTIFICATION_TEST:
-                num = round(rd.random(), 2)
-                print(num)
+                num = round(rd.random(), 3)
                 await var_dict[notification_test_variable].write_value(num)
                 await asyncio.sleep(notification_test_period)
             await asyncio.sleep(0.1)
