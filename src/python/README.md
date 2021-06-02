@@ -23,3 +23,18 @@ sudo apt install git
 git clone <link>
 make all
 ```
+## Usefull commands
+### Linux  
+Show interface configurations
+```
+ifconfig
+```
+Shut interface Down/ Up  
+```
+sudo ifconfig wlan0 up/ down
+```
+### Microsoft/ Linux  
+Show known IPs
+```
+arp -a
+```
