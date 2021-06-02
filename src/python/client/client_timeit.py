@@ -1,14 +1,14 @@
 '''
-Client to time interactions with opc ua servers
+Client to time interactions with server_timeit.py
 '''
 
-import sys, os, datetime
-
-from asyncua.common import subscription
+import sys, os
 sys.path.insert(0, "..")
+
 
 import asyncio
 from asyncua import Client, Node, ua
+from asyncua.common import subscription
 from asyncua.common.subscription import SubHandler
 
 import time
@@ -27,10 +27,9 @@ logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger(__name__) #'asyncua')
 
 
-global DATA_CHANGE_RECV
+
 global timestamp_list
-DATA_CHANGE_RECV, timestamp_list = False, []
-sub_time_old, sub_time_new = None, None
+timestamp_list = []
 class SubscriptionHandler (SubHandler):
     """
     Handle the data that received for the subscription.
@@ -41,10 +40,9 @@ class SubscriptionHandler (SubHandler):
         Callback for asyncua Subscription.
         This method will be called when the Client received a data change message from the Server.
         """
-        global DATA_CHANGE_RECV, timestamp_list
-        timestamp = time.perf_counter_ns()
-        timestamp_list.append(timestamp)
-        DATA_CHANGE_RECV = True
+        global timestamp_list
+        timestamp_list.append(time.perf_counter_ns())
+
 
 async def time_subscription(client, obj, idx, var, var_name, case, period=10, change_int=1, duration=100, queuesize=1):
     """
@@ -52,7 +50,7 @@ async def time_subscription(client, obj, idx, var, var_name, case, period=10, ch
     change_int: interval of datachange of variable value [ms]
     duration: duration of test [sec]
     """
-    global DATA_CHANGE_RECV, timestamp_list
+    global timestamp_list
     change_int_sec = change_int*10**-3
     # create subscription
     sub_handler = SubscriptionHandler()
@@ -132,20 +130,18 @@ async def main(host='0.0.0.0'):
                 delay = 0
                 case='test'
 
-                # _logger.info('start timing of write operations')
-                # t1 = time.perf_counter()
-                # await time_write(motor_rpm, cycles, case, delay)
-                # t2 = time.perf_counter()
-                # _logger.info(f'finished timing of write operations: {t2-t1}s')
+                _logger.info('start timing of write operations')
+                t1 = time.perf_counter()
+                await time_write(motor_rpm, cycles, case, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of write operations: {t2-t1}s')
                 
-                # _logger.info('start timing of method calls')
-                # t1 = time.perf_counter()
-                # await time_method(motor_obj, idx, cycles, case, delay)
-                # t2 = time.perf_counter()
-                # _logger.info(f'finished timing of method calls: {t2-t1}s')
+                _logger.info('start timing of method calls')
+                t1 = time.perf_counter()
+                await time_method(motor_obj, idx, cycles, case, delay)
+                t2 = time.perf_counter()
+                _logger.info(f'finished timing of method calls: {t2-t1}s')
                 
-
-                # client, obj, idx, var, var_name, case, period=10, change_int=1, duration=100, queuesize=1)
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
                 await time_subscription(client, obj=motor_obj, idx=idx, var=motor_rpm, \
