@@ -128,7 +128,7 @@ async def main(host='0.0.0.0'):
 
                 cycles=10**3
                 delay = 0
-                case='test'
+                case='wlan'
 
                 _logger.info('start timing of write operations')
                 t1 = time.perf_counter()
@@ -145,7 +145,7 @@ async def main(host='0.0.0.0'):
                 _logger.info('start timing datachange_notifications')
                 t1 = time.perf_counter()
                 await time_subscription(client, obj=motor_obj, idx=idx, var=motor_rpm, \
-                            var_name='RPM', case=case, period=10, change_int=1, duration=100)
+                            var_name='RPM', case=case, period=10, change_int=10, duration=20)
                 t2 = time.perf_counter()
                 _logger.info(f'finished timing of datachange_notifications: {t2-t1}s')
 
