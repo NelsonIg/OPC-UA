@@ -11,7 +11,7 @@ persistent rpm_node;
 persistent inp_node;
 persistent initNodes;
 
-host = '127.0.0.1';
+host = '192.168.0.183';
 port = 4840;
 
 % Connect to server if no client was initialised
@@ -31,18 +31,24 @@ end
 
 
 
-% get nodes, if no nodes are already defined
-if uaClient.isConnected == 1 && (isempty(initNodes))
-    rpm_node = opcuanode(2, 5);
-    inp_node = opcuanode(2, 6);
-    initNodes = 1;
-end
-% read from & read to server
-if uaClient.isConnected == 1 && (isempty(initNodes)) == 0
-    writeValue(uaClient,inp_node, inputVal);
-    [rpmVal, ~, ~] = readValue(uaClient, rpm_node);
-    
-outputVal = double(rpmVal);
 
+if isempty(uaClient) == 0
+    % get nodes, if no nodes are already defined
+    if uaClient.isConnected == 1 && (isempty(initNodes))
+        rpm_node = opcuanode(2, 5);
+        inp_node = opcuanode(2, 6);
+        initNodes = 1;
+    end
+
+
+    % read from & read to server
+    if uaClient.isConnected == 1 && (isempty(initNodes)) == 0
+        writeValue(uaClient,inp_node, inputVal);
+        % pause(0.100);
+        [rpmVal, ~, ~] = readValue(uaClient, rpm_node);
+
+    outputVal = double(rpmVal);
+
+    end
 end
 
