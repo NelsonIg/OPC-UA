@@ -40,10 +40,9 @@ end
 % read from & read to server
 if uaClient.isConnected == 1 && (isempty(initNodes)) == 0
     writeValue(uaClient,inp_node, inputVal);
-    pause(1);
-    rpmVal = readValue(uaClient, rpm_node);
+    [rpmVal, ~, ~] = readValue(uaClient, rpm_node);
     
-outputVal = rpmVal;
+outputVal = double(rpmVal);
 
 end
 
