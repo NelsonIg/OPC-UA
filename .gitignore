@@ -136,3 +136,6 @@ secrets.*
 
 # VS Code
 .vscode/
+
+# Matlab
+**/slprj/*
