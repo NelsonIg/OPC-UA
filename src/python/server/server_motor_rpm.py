@@ -106,13 +106,13 @@ async def set_speed():
 
 global mean_diff
 mean_diff = Value('i', 0)
-def clalc_time_diff():
+def calc_time_diff():
     """
         Calculate Time Difference between pulses
     """
     # print('Thread started')
     counter = 0
-    n_pulses = 5
+    n_pulses = 10
     diff = 0
     diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
     while True:
@@ -129,8 +129,8 @@ def clalc_time_diff():
                 # update mean difference between pulses
                 diff = NEW_EDGE.value-OLD_EDGE.value
                 if diff >0: # ignore random wrong values
-                    diff_vec[1::] = diff_vec[:-1:1]
-                    diff_vec[0] = diff
+                    diff_vec[1::] = diff_vec[:-1:1] # shift to rigth to update new values
+                    diff_vec[0] = diff # latest value
         else:
             counter +=1
             if counter>50: diff_vec = np.zeros(n_pulses)
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     # callback for detecting rising edges
     puls.when_pressed = callback_high_edge # rising edge
     # thread for computing time difference of rising edges
-    p = Process(target=clalc_time_diff)
+    p = Process(target=calc_time_diff)
     p.start()
     if len(sys.argv)>1:
         host = sys.argv[1]
