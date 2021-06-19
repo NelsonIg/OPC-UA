@@ -93,7 +93,8 @@ async def set_speed():
     global START_FLAG, STOP_FLAG, NEW_MOTOR_INP, motor_speed_is
     if START_FLAG:
         if NEW_MOTOR_INP:
-            motor.forward(motor_speed_is)
+            if motor_speed_is >=0 and motor_speed_is <=1:
+                motor.forward(motor_speed_is)
             NEW_MOTOR_INP = False
             START_FLAG = False
             if DEBUG: _logger.debug(f'motor set to {motor_speed_is}')
