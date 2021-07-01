@@ -161,11 +161,11 @@ async def set_rpm():
     await dc_motor_rpm.write_value(rpm)
     if DEBUG: _logger.debug(f'rpm\t{rpm}')
 
-async def main(host='localhost'):
+async def main(host, port):
     # init server, set endpoint
     server = Server()
     await server.init()
-    server.set_endpoint(f"opc.tcp://{host}:4840")
+    server.set_endpoint(f"opc.tcp://{host}:{port}")
 
     # setup of namespace, not needed
     uri = "example-uri.edu"
@@ -209,16 +209,20 @@ if __name__ == "__main__":
     # thread for computing time difference of rising edges
     p = Process(target=calc_time_diff)
     p.start()
-    if len(sys.argv)>1:
-        host = sys.argv[1]
-        if "-d" in sys.argv or "--debug" in sys.argv:
-            DEBUG = True
-        else:
-            DEBUG = False
-    else:
-        host='0.0.0.0'
+
+    DEBUG = args.debug
+    host = args.host
+    port = args.port 
+    # if len(sys.argv)>1:
+    #     host = sys.argv[1]
+    #     if "-d" in sys.argv or "--debug" in sys.argv:
+    #         DEBUG = True
+    #     else:
+    #         DEBUG = False
+    # else:
+    #     host='0.0.0.0'
     try:
-        asyncio.run(main(host))
+        asyncio.run(main(host, port))
     except Exception as e:
         print(e)
         p.kill()
