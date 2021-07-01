@@ -203,7 +203,6 @@ async def main(host, port):
 
 if __name__ == "__main__":
     global DEBUG
-    DEBUG = False
     # callback for detecting rising edges
     puls.when_pressed = callback_high_edge # rising edge
     # thread for computing time difference of rising edges
@@ -213,14 +212,7 @@ if __name__ == "__main__":
     DEBUG = args.debug
     host = args.host
     port = args.port 
-    # if len(sys.argv)>1:
-    #     host = sys.argv[1]
-    #     if "-d" in sys.argv or "--debug" in sys.argv:
-    #         DEBUG = True
-    #     else:
-    #         DEBUG = False
-    # else:
-    #     host='0.0.0.0'
+
     try:
         asyncio.run(main(host, port))
     except Exception as e:
