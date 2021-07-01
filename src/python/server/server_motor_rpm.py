@@ -26,13 +26,13 @@ from multiprocessing import Process, Value
 import time
 import numpy as np
 
-# ###################################### ARGUMENTS PARSER ####################
-# parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
-#                                     controls a DC Motor')
-# parser.add_argument(name=['--host', '-h'], default='0.0.0.0', type=str,
-#                     help='Define the host IP pf the Server.', dest='host')
+###################################### ARGUMENTS PARSER ####################
+parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
+                                    controls a DC Motor')
+parser.add_argument(name=['--host', '-h'], default='0.0.0.0', type=str,
+                    help='Define the host IP pf the Server.', dest='host')
 
-# ############################################################################
+############################################################################
 puls = Button(14)
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
@@ -47,7 +47,7 @@ class SubscriptionHandler (SubHandler):
     Handle the data that received for the subscription.
     """
 
-    def datachange_notification(self, node, val, data):
+    def datachange_notification(self, node: Node, val, data):
         global STOP_FLAG, START_FLAG, NEW_MOTOR_INP, motor_speed_is
         if DEBUG: _logger.debug(f'datachange_notification node: {node} value: {val}')
         motor_speed_is = val
