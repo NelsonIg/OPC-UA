@@ -29,9 +29,13 @@ import numpy as np
 ###################################### ARGUMENTS PARSER ####################
 parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
                                     controls a DC Motor')
-parser.add_argument('-h', '-host', default='0.0.0.0', type=str,
-                    help='Define the host IP pf the Server.', dest='host')
-
+parser.add_argument('--host', default='0.0.0.0', type=str,
+                    help='Define the host IP of the Server.', dest='host')
+parser.add_argument('--port', '-p', default='4840', type=str,
+                    help='Define the port of the Server.', dest='port')
+parser.add_argument('--debug', '-d', action='store_true',
+                    help='Enable debugging mode.', dest='debug')
+args = parser.parse_args()
 ############################################################################
 puls = Button(14)
 
