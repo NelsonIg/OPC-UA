@@ -38,7 +38,7 @@ if isempty(uaClient) == 0
     % read from & read to server
     if uaClient.isConnected == 1 && (isempty(initNodes)) == 0
         writeValue(uaClient,inpNode, inputVal);
-        % pause(0.100); time for the motor to react --> not needed
+        % pause(0.100); % time for the motor to react --> not needed
         [rpmVal, ~, ~] = readValue(uaClient, rpmNode);
 
     outputVal = double(rpmVal);
