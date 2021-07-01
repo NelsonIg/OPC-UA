@@ -26,13 +26,13 @@ from multiprocessing import Process, Value
 import time
 import numpy as np
 
-###################################### ARGUMENTS PARSER ####################
-parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
-                                    controls a DC Motor')
-parser.add_argument(name=['--host', '-h'], default='0.0.0.0', type=str,
-                    help='Define the host IP pf the Server.', dest='host')
+# ###################################### ARGUMENTS PARSER ####################
+# parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
+#                                     controls a DC Motor')
+# parser.add_argument(name=['--host', '-h'], default='0.0.0.0', type=str,
+#                     help='Define the host IP pf the Server.', dest='host')
 
-############################################################################
+# ############################################################################
 puls = Button(14)
 
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
