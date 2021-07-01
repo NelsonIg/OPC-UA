@@ -47,7 +47,7 @@ class SubscriptionHandler (SubHandler):
     Handle the data that received for the subscription.
     """
 
-    def datachange_notification(self, node: Node, val, data):
+    def datachange_notification(self, node, val, data):
         global STOP_FLAG, START_FLAG, NEW_MOTOR_INP, motor_speed_is
         if DEBUG: _logger.debug(f'datachange_notification node: {node} value: {val}')
         motor_speed_is = val
