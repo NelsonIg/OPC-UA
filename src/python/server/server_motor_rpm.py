@@ -62,6 +62,7 @@ class SubscriptionHandler (SubHandler):
         NEW_MOTOR_INP=True
 
 # Define Flags as multiprocessing.Value so memory is shared
+# Values are thread safe
 global EDGE_DETECTED, OLD_EDGE, NEW_EDGE
 EDGE_DETECTED = Value('i', False)
 OLD_EDGE, NEW_EDGE = Value('i', False), Value('i', False)
@@ -207,10 +208,11 @@ if __name__ == "__main__":
     p = Process(target=calc_time_diff)
     p.start()
 
+    # command line arguments
     DEBUG = args.debug
     host = args.host
     port = args.port 
-
+    # start server
     try:
         asyncio.run(main(host, port))
     except Exception as e:
