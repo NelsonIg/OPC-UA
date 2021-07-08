@@ -35,7 +35,7 @@ if isempty(uaClient) == 0
     end
 
 
-    % read from & read to server
+    % read from & write to server
     if uaClient.isConnected == 1 && (isempty(initNodes)) == 0
         writeValue(uaClient,inpNode, inputVal);
         % pause(0.100); % time for the motor to react --> not needed
