@@ -121,34 +121,32 @@ def calc_time_diff():
     """
         Calculate Time Difference between pulses
     """
-    # print('Thread started')
-    counter = 0
-    n_pulses = 3
-    diff = 0
+    counter = 0 # count cycles whithout new edge detected
+    n_pulses = 3 # define how many pulses are stored
+    diff = 0 # time difference between two edges
     diff_vec = np.zeros(n_pulses) # stores last time differences of pulses
     while True:
         global EDGE_DETECTED, OLD_EDGE,\
                 NEW_EDGE, mean_diff
-
+        # set counter to 0 if edge is detected
+        # and start computing
         if EDGE_DETECTED.value:
             EDGE_DETECTED.value = False
             counter = 0
-            # print('Edge detected')
-
+            # check old and new edge, no computation at first edge
             if NEW_EDGE.value and OLD_EDGE.value:
-                # print('new edge and old edge')
                 # update mean difference between pulses
                 diff = NEW_EDGE.value-OLD_EDGE.value
                 if diff >0: # ignore random wrong values
                     diff_vec[1::] = diff_vec[:-1:1] # shift to rigth to update new values
                     diff_vec[0] = diff # latest value
+        # Count cycles whithout edge
         else:
             counter +=1
-            if counter>50: diff_vec = np.zeros(n_pulses)
+            if counter>50:
+                # detect when motor has stopped
+                diff_vec = np.zeros(n_pulses) 
         mean_diff.value = int(np.mean(diff_vec))
-        # print(f'Thread\tdiff: {diff}')
-        # print(f'Thread\tdiff_vec: {diff_vec}')
-        # print(f'Thread\tmean_diff: {mean_diff.value}')
         time.sleep(0.001)
 
 async def set_rpm():
