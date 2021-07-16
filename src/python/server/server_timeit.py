@@ -9,6 +9,15 @@ import random as rd
 logging.basicConfig(level=logging.DEBUG) # logging.INFO as default
 _logger = logging.getLogger(__name__)
 
+import argparse
+###################################### ARGUMENTS PARSER ####################
+parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
+                                    controls a DC Motor')
+parser.add_argument('--host', default='0.0.0.0', type=str,
+                    help='Define the host IP of the Server.', dest='host')
+args = parser.parse_args()
+############################################################################
+
 #*********************** Server Methods *******************************#
 # add start, stop methods for motor
 # @uamethod: Method decorator to automatically
@@ -105,22 +114,9 @@ async def main(host='0.0.0.0'):
 
 if __name__ == '__main__':
 
-    if len(sys.argv)>1:
-        # arguments passed to script
-        # accepted options: -h/--host
-        # syntax <option> <host>
-        if '-h' in sys.argv:
-            idx_option = sys.argv.index('-h')
-        elif '--host' in sys.argv:
-            idx_option = sys.argv.index('--host')
-        else:
-            raise ValueError('only -h and --host accepted as options\n \
-                                <option> <host>')
-        # set host
-        host = sys.argv[idx_option+1]
-        asyncio.run(main(host))
-    else:
-        asyncio.run(main())
+    host = args.host
+    asyncio.run(main(host))
+
 
 
 # sudo ifconfig wlan0 down - disable wlan0
