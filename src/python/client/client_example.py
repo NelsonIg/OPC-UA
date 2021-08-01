@@ -14,6 +14,15 @@ from asyncua.common.subscription import SubHandler
 logging.basicConfig(level=logging.INFO) # logging.INFO as default
 _logger = logging.getLogger() #'asyncua')
 
+import argparse
+
+parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
+                                    controls a DC Motor')
+parser.add_argument('--host', default='0.0.0.0', type=str,
+                    help='Define the host IP of the Server.', dest='host')
+
+args = parser.parse_args()
+
 global STOP_FLAG
 STOP_FLAG = False
 
@@ -35,11 +44,11 @@ class SubscriptionHandler (SubHandler):
 
 
 
-async def main():
+async def main(host):
     """
     Open communication to Server
     """
-    server_endpoint = "opc.tcp://localhost:4840/server_example/"
+    server_endpoint = f"opc.tcp://{host}:4840/server_example/"
     client = Client(url=server_endpoint)
     async with client:
         idx = await client.get_namespace_index(uri="example-uri.edu")
@@ -77,6 +86,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    host = args.host
+    asyncio.run(main(host))
 
 

@@ -10,8 +10,14 @@ import sys
 sys.path.insert(0, '..') # import parent folder
 import asyncio # documentation --> https://docs.python.org/3/library/asyncio-task.html
 from asyncua import ua, Server, uamethod
+import argparse
 
+parser = argparse.ArgumentParser(description='Start an OPC UA Server, that \
+                                    controls a DC Motor')
+parser.add_argument('--host', default='0.0.0.0', type=str,
+                    help='Define the host IP of the Server.', dest='host')
 
+args = parser.parse_args()
 
 # add start, stop methods for motor
 global MOTOR_STARTED, dc_motor_inp, dc_motor_rpm
@@ -102,8 +108,5 @@ async def main(host='localhost'):
             await asyncio.sleep(1)
 
 if __name__ == "__main__":
-    if len(sys.argv)>1:
-        host = sys.argv[1]
-    else:
-        host='localhost'
+    host = args.host
     asyncio.run(main(host))
