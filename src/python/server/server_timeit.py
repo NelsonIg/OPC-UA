@@ -34,6 +34,7 @@ async def stop_motor(parent):
 NOTIFICATION_TEST = False
 notification_test_period = None
 notification_test_variable = None
+
 @uamethod
 async def start_notification_test(parent, period, var_name='RPM'):
     """
