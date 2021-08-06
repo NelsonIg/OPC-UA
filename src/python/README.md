@@ -21,7 +21,7 @@ network={
 sudo apt update
 sudo apt install git
 git clone <link>
-cd ./OPC-UA/
+cd ./OPC-UA/src
 make all
 ```
 ## Usefull commands
