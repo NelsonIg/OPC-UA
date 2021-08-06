@@ -7,4 +7,4 @@ all:
 
 .PHONY: raspi-server-test
 raspi-server-test:
-	python3 server/server_example.py --host localhost 
+	python3 server/server_example.py --host 0.0.0.0 
