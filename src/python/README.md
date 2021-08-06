@@ -24,6 +24,10 @@ git clone <link>
 cd ./OPC-UA/src/python
 make all
 ```
+Start test server
+``
+make raspi-server-test
+``
 ## Usefull commands
 ### Linux  
 Show interface configurations
