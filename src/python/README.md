@@ -21,7 +21,7 @@ network={
 sudo apt update
 sudo apt install git
 git clone <link>
-cd ./OPC-UA/src
+cd ./OPC-UA/src/python
 make all
 ```
 ## Usefull commands
